@@ -4,6 +4,7 @@ let bombs = [];
 let bombNum;
 let flags = [];
 let hearts = [];
+let eyes = [];
 let isFirstClick = true;
 let canClickButton = true;
 let flagMode = false;
@@ -65,7 +66,7 @@ function generateField() {
     for (let i = 0; i < rows; i++) {
         fieldHtml += `<div class="row" id="row${i}">`
         for (let j = 0; j < columns; j++) {
-            fieldHtml += `<button onclick="clickButton(${j + columns*i})"
+            fieldHtml += `<button onclick="clickButton(${j + columns*i}, true)"
             class="button" id="button${j + columns*i}">
             </button>`
         }   
@@ -79,7 +80,7 @@ function generateField() {
             bombs.push(bombId)
         }
     }
-    generateHearts();
+    generatePickups();
     document.documentElement.style.setProperty('--is-active', 1)
 }
 function generateBombs(id) {
@@ -98,6 +99,7 @@ function generateBombs(id) {
 }
 function generatePickups() {
     generateHearts();
+    generateEyes();
 
     pickedPickups = []
 }
@@ -108,6 +110,15 @@ function generateHearts() {
         let heartId = Math.floor(Math.random() * rows * columns);
         if (!hearts.includes(heartId) && !bombs.includes(heartId)) {
             hearts.push(heartId)
+        }
+    }
+}
+function generateEyes() {
+    eyes = [];
+    while (eyes.length < bombNum/30) {
+        let eyeId = Math.floor(Math.random() * rows * columns);
+        if (!eyes.includes(eyeId) && !bombs.includes(eyeId) && !hearts.includes(eyeId)) {
+            eyes.push(eyeId)
         }
     }
 }
@@ -131,7 +142,7 @@ function getBombNeighbors(id) {
     return getNeighbors(id).filter(value => bombs.includes(value))
 }
 
-function clickButton(id) {
+function clickButton(id, isClick) {
     let button = document.querySelector('#button' + id);
     if (canClickButton && !clickedBombs.includes(id)) {
         let nearBombs = getBombNeighbors(id).length;
@@ -148,12 +159,28 @@ function clickButton(id) {
             flags = flags.filter(value => value != id);
         } else if (!flags.includes(id)) {
             button.classList.replace("button", "button_pressed");
-            if (pickedPickups.includes(id)) {
+            if (isClick && pickedPickups.includes(id)) {
                 if (hearts.includes(id) && currentLife < maxLife) {
                     button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
                     currentLife++;
                     setHearts();
                     hearts = hearts.filter(value => value != id);
+                    pickedPickups = pickedPickups.filter(value => value != id);
+                    return;
+                }
+                if (eyes.includes(id)) {
+                    button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
+                    let reveal = false;
+                    let attempts = 0;
+                    while (!reveal && attempts < 256) {
+                        let randomId = Math.floor(Math.random() * rows * columns);
+                        if (!bombs.includes(randomId) && !flags.includes(randomId) && !isButtonPressed(randomId)) {
+                            clickButton(randomId)
+                            reveal = true;
+                        }
+                        attempts++;
+                    }
+                    eyes = eyes.filter(value => value != id);
                     pickedPickups = pickedPickups.filter(value => value != id);
                     return;
                 }
@@ -172,7 +199,7 @@ function clickButton(id) {
             } else if (nearBombs == 0) {
                 let neighbors = getNeighbors(id);
                 neighbors.forEach(value => {if (!isButtonPressed(value)) {
-                    clickButton(value);
+                    clickButton(value, false);
                 }})
             } else {
                 button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
@@ -181,6 +208,11 @@ function clickButton(id) {
             if (hearts.includes(id)) {
                 button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
                 <div class="bg heartpickup"></div></div>`
+                pickedPickups.push(id);
+            }
+            if (eyes.includes(id)) {
+                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+                <div class="bg eyepickup"></div></div>`
                 pickedPickups.push(id);
             }
         }
@@ -215,6 +247,11 @@ function revealTiles() {
         let button = document.querySelector('#button' + value);
         button.classList.replace('button', 'button_low');
         button.innerHTML = `<div class="bg heartpickup"></div>`;
+    });
+    eyes.forEach(value => {
+        let button = document.querySelector('#button' + value);
+        button.classList.replace('button', 'button_low');
+        button.innerHTML = `<div class="bg eyepickup"></div>`;
     });
 }
 

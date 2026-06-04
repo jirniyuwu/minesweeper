@@ -102,6 +102,13 @@ input {
 .heartpickup:hover {
     background-image: if(style(--is-active: 1): url(sprites/heart_small_active.png); else: url(sprites/heart_small.png));
 }
+.eyepickup {
+    background-image: url(sprites/eye.png);
+    cursor: if(style(--is-active: 1): pointer; else: default);
+}
+.eyepickup:hover {
+    background-image: if(style(--is-active: 1): url(sprites/eye_active.png); else: url(sprites/eye.png));
+}
 
 .button_toggle {
     border: none;
