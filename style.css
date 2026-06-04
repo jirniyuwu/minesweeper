@@ -1,0 +1,210 @@
+:root {
+    background-color: #54536E;
+    font-family: arial;
+    image-rendering: pixelated;
+}
+button {
+    all: unset;
+}
+input {
+    all: unset;
+}
+#inputbox {
+    display: flex;
+    column-gap: 4px;
+    margin-bottom: 4px;
+    justify-content: center;
+}
+#field {
+    display: flex;
+    justify-self: center;
+    flex-direction: column;
+    row-gap: 0px;
+}
+.row {
+    display: flex;
+    column-gap: 4px;
+}
+.button {
+    border: none;
+    width: 64px;
+    height: 64px;
+    margin: 0px 0px -12px 0px;
+    background-image: url(sprites/button.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    cursor: if(style(--is-active: 1): pointer; else: default);
+}
+.button:hover {
+    background-image: if(style(--is-active: 1): url(sprites/button_hold.png); else: url(sprites/button.png));
+}
+.button:active {
+    background-image: if(style(--is-active: 1): url(sprites/button_active.png); else: url(sprites/button.png));
+}
+.button_low {
+    border: none;
+    width: 64px;
+    height: 64px;
+    margin: 0px 0px -12px 0px;
+    background-image: url(sprites/button_low.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    cursor: if(style(--is-active: 1): pointer; else: default);
+}
+.button_low:hover {
+    background-image: if(style(--is-active: 1): url(sprites/button_hold.png); else: url(sprites/button_low.png));
+}
+.button_pressed {
+    border: none;
+    width: 64px;
+    height: 64px;
+    margin: 0px 0px -12px 0px;
+    background-image: url(sprites/button_pressed.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+.button_flagged {
+    border: none;
+    width: 64px;
+    height: 64px;
+    margin: 0px 0px -12px 0px;
+    background-image: url(sprites/button_flagged.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    cursor: if(style(--is-active: 1): pointer; else: default);
+}
+.button_flagged:hover {
+    background-image: if(style(--is-active: 1): url(sprites/button_flagged_hold.png); else: url(sprites/button_flagged.png));
+}
+.bg {
+    width: 100%;
+    height: 100%;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+.num1 {background-image: url(sprites/num/1.png)}
+.num2 {background-image: url(sprites/num/2.png)}
+.num3 {background-image: url(sprites/num/3.png)}
+.num4 {background-image: url(sprites/num/4.png)}
+.num5 {background-image: url(sprites/num/5.png)}
+.num6 {background-image: url(sprites/num/6.png)}
+.num7 {background-image: url(sprites/num/7.png)}
+.num8 {background-image: url(sprites/num/8.png)}
+
+.bomb {
+    background-image: url(sprites/bomb.png);
+    pointer-events: none;
+}
+.heartpickup {
+    background-image: url(sprites/heart_small.png);
+    cursor: if(style(--is-active: 1): pointer; else: default);
+}
+.heartpickup:hover {
+    background-image: if(style(--is-active: 1): url(sprites/heart_small_active.png); else: url(sprites/heart_small.png));
+}
+
+.button_toggle {
+    border: none;
+    width: 64px;
+    height: 64px;
+    margin: 0px 0px -12px 0px;
+    background-image: url(sprites/button_flagged.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+.button_toggle:hover {
+    background-image: url(sprites/button_flagged_hold.png);
+}
+.button_toggle_active {
+    border: none;
+    width: 64px;
+    height: 64px;
+    margin: 0px 0px -12px 0px;
+    background-image: url(sprites/button_flagged_pressed.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    display: inline;
+}
+.button_toggle_active:hover {
+    background-image: url(sprites/button_flagged_pressed_hold.png);
+}
+.refresh {
+    border: none;
+    width: 64px;
+    height: 64px;
+    background-image: url(sprites/refresh.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    display: inline;
+}
+.refresh:hover {
+    background-image: url(sprites/refresh_hold.png);
+}
+.refresh:active {
+    background-image: url(sprites/refresh_pressed.png);
+}
+
+.textbox {
+    border: none;
+    font-family: monocraft;
+    font-size: 28px;
+    color: #333349;
+    width: 76px;
+    height: 40px;
+    padding: 12px;
+    background-image: url(sprites/textbox.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    display: inline;
+}
+.rowsinput {background-image: url(sprites/textbox_rows.png)}
+.columnsinput {background-image: url(sprites/textbox_columns.png)}
+.bombsinput {background-image: url(sprites/textbox_bombs.png)}
+
+#endscreen {
+    border: none;
+    width: 192px;
+    height: 64px;
+    margin-top: -16px;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    justify-self: center;
+    position: absolute;
+    pointer-events: none;
+}
+.screen_win {
+    display: block;
+    background-image: url(sprites/victory.png);
+}
+.screen_lose {
+    display: block;
+    background-image: url(sprites/defeat.png);
+}
+
+#hearts {
+    display: flex;
+    column-gap: 4px;
+    width: max-content;
+    justify-content: left;
+    flex-direction: row;
+}
+.heart {
+    width: 64px;
+    height: 64px;
+    margin: 0px 0px 0px -4px;
+    background-image: url(sprites/heart.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+.heart_empty {
+    width: 64px;
+    height: 64px;
+    margin: 0px 0px 0px -4px;
+    background-image: url(sprites/heart_empty.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>minesweeper</title>
+        <icon></icon>
+        <script src="script.js"></script>
+        <link rel="stylesheet" href="style.css">
+        <link rel="icon" href="icon.png">
+    </head>
+    <body>
+        <div id="board">
+            <div id="inputbox">
+                <input type="number" class="textbox rowsinput" id="row" placeholder="row" value="16">
+                <input type="number" class="textbox columnsinput" id="column" placeholder="column" value="10">
+                <input type="number" class="textbox bombsinput" id="bombs" placeholder="bombs" value="32">
+                <button onclick="generateField()" class="refresh"></button>
+                <div class="button_toggle" id="flag_toggle" onclick="flagToggle()"></div>
+                <div id="hearts"></div>
+            </div>
+            <div id="endscreen"></div>
+            <div id="field"></div>
+        </div>
+    </body>
+</html>
