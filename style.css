@@ -76,6 +76,16 @@ input {
 .button_flagged:hover {
     background-image: if(style(--is-active: 1): url(sprites/button_flagged_hold.png); else: url(sprites/button_flagged.png));
 }
+.wall_button {
+    border: none;
+    width: 64px;
+    height: 64px;
+    margin: 0px 0px -12px 0px;
+    background-image: url(sprites/wall.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+
 .bg {
     width: 100%;
     height: 100%;

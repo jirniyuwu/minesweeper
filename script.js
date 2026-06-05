@@ -13,6 +13,7 @@ let maxLife = 3;
 let resistedBombs = 0;
 let clickedBombs = [];
 let pickedPickups = [];
+let wallTiles = [];
 
 document.addEventListener('keydown', (event) => {
     let toggleButton = document.querySelector('#flag_toggle')
@@ -21,7 +22,7 @@ document.addEventListener('keydown', (event) => {
         flagMode = true;
     }
     if (event.key == "r") {
-        generateField();
+        resetGame();
     }
 })
 document.addEventListener('keyup', (event) => {
@@ -33,8 +34,9 @@ document.addEventListener('keyup', (event) => {
 })
 
 function getButtonID(x, y) {
-    return x < columns && y < rows && x >= 0 && y >= 0 
-    ? y*columns+x : NaN;}
+    let id = y*columns+x;
+    return !wallTiles.includes(id) && x < columns && y < rows && x >= 0 && y >= 0 
+    ? id : NaN;}
 function getButtonX(id) {return id%columns;}
 function getButtonY(id) {return (id-getButtonX(id))/columns}
 function isButtonPressed(id) {
@@ -55,13 +57,12 @@ function generateField(row, column) {
     rows = row;
     columns = column
     document.querySelector('#endscreen').classList.remove('screen_win', 'screen_lose');
-    if (bombNum > rows*columns-1) {
+    if (bombNum > rows*columns-wallTiles.length-9) {
         throw new Error("too many bombs");
     } else if (rows > 512 || columns > 512 || rows*columns > 16384) {
         throw new Error("board too big")
     } else if (rows < 1 || columns < 1 || bombs < 0) {
         throw new Error("negative values")
-    } else if (bombs > rows*columns - 9) {
     }
     clickedBombs = [];
     pickedPickups = [];
@@ -73,9 +74,10 @@ function generateField(row, column) {
     for (let i = 0; i < rows; i++) {
         fieldHtml += `<div class="row" id="row${i}">`
         for (let j = 0; j < columns; j++) {
-            fieldHtml += `<button onclick="clickButton(${j + columns*i}, true)"
-            class="button" id="button${j + columns*i}">
-            </button>`
+            fieldHtml += !(wallTiles.includes(j + columns*i)) ? 
+            `<button onclick="clickButton(${j + columns*i}, true)"
+            class="button" id="button${j + columns*i}"></button>` : 
+            `<button class="wall_button" id="button${j + columns*i}"></button>`
         }   
         fieldHtml += `</div>`
     }
@@ -83,7 +85,7 @@ function generateField(row, column) {
     bombs = [];
     while (bombs.length < bombNum) {
         let bombId = Math.floor(Math.random() * rows * columns);
-        if (!bombs.includes(bombId)) {
+        if (!bombs.includes(bombId) && !wallTiles.includes(bombId)) {
             bombs.push(bombId)
         }
     }
@@ -92,7 +94,7 @@ function generateField(row, column) {
 
 function generateBombs(id) {
     bombs = [];
-    let exclude = getNeighbors(id);
+    let exclude = [...getNeighbors(id), ...wallTiles];
     if (bombNum > rows*columns - exclude.length - 1) {
         throw new Error("too many bombs")
     }
@@ -105,29 +107,32 @@ function generateBombs(id) {
     generatePickups();
 }
 function generatePickups() {
-    generateHearts();
-    generateEyes();
+    let exclude = [...bombs];
+    generateHearts(exclude);
+    generateEyes(exclude);
 
     pickedPickups = []
 }
 
-function generateHearts() {
+function generateHearts(exclude) {
     hearts = [];
     while (hearts.length <= bombNum/10) {
         let heartId = Math.floor(Math.random() * rows * columns);
-        if (!hearts.includes(heartId) && !bombs.includes(heartId)) {
+        if (!hearts.includes(heartId) && !exclude.includes(heartId)) {
             hearts.push(heartId)
         }
     }
+    exclude = [...exclude, ...hearts]
 }
-function generateEyes() {
+function generateEyes(exclude) {
     eyes = [];
     while (eyes.length <= bombNum/30) {
         let eyeId = Math.floor(Math.random() * rows * columns);
-        if (!eyes.includes(eyeId) && !bombs.includes(eyeId) && !hearts.includes(eyeId)) {
+        if (!eyes.includes(eyeId) && !exclude.includes(eyeId)) {
             eyes.push(eyeId)
         }
     }
+    exclude = [...exclude, ...eyes]
 }
 
 function getNeighbors(id) {
@@ -151,7 +156,7 @@ function getBombNeighbors(id) {
 
 function clickButton(id, isClick) {
     let button = document.querySelector('#button' + id);
-    if (canClickButton && !clickedBombs.includes(id)) {
+    if (canClickButton && !clickedBombs.includes(id) && !wallTiles.includes(id)) {
         let nearBombs = getBombNeighbors(id).length;
         if ((bombs.includes(id) || nearBombs > 0) && isFirstClick) {
             generateBombs(id);
@@ -169,11 +174,12 @@ function clickButton(id, isClick) {
             }
             if (eyes.includes(id)) {
                 button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
+                let exclude = [...bombs, ...wallTiles, ...flags]
                 let reveal = false;
                 let attempts = 0;
                 while (!reveal && attempts < 256) {
                     let randomId = Math.floor(Math.random() * rows * columns);
-                    if (!bombs.includes(randomId) && !flags.includes(randomId) && !isButtonPressed(randomId)) {
+                    if (!exclude.includes(randomId) && !isButtonPressed(randomId)) {
                         clickButton(randomId)
                         reveal = true;
                     }
@@ -245,7 +251,7 @@ function win() {
 }
 
 function winCondition() {
-    return document.querySelectorAll('.button_pressed').length == rows*columns - bombs.length + resistedBombs;
+    return document.querySelectorAll('.button_pressed').length == rows*columns - bombs.length - wallTiles.length + resistedBombs;
 }
 
 function revealTiles() {
