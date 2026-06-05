@@ -20,6 +20,7 @@ let wallTiles = [];
 let lockedTiles = [];
 let isFloorsMode = false;
 let allowPickups = true;
+let currentFloor = 0;
 
 document.addEventListener('keydown', (event) => {
     let toggleButton = document.querySelector('#flag_toggle')
@@ -53,6 +54,13 @@ async function resetGame() {
     row = document.getElementById("row").value;
     column = document.getElementById("column").value;
     bombNum = document.getElementById("bombs").value;
+    if (isFloorsMode) {
+        row = 5;
+        column = 5;
+        bombNum = 4;
+        currentFloor = 1;
+        setFloor();
+    }
     maxLife = document.getElementById("heart").value;
     currentLife = maxLife;
     coins = 0;
@@ -65,7 +73,9 @@ async function resetGame() {
 async function generateField(row, column) {
     rows = row;
     columns = column;
-    await parseWallsJson(rows+'x'+columns);
+    if (!isFloorsMode) {
+        await parseWallsJson(rows+'x'+columns);
+    } // will remain until there are sufficient wall layouts
     document.querySelector('#endscreen').classList.remove('screen_win', 'screen_lose');
     if (bombNum > rows*columns-wallTiles.length-9) {
         throw new Error("too many bombs");
@@ -333,10 +343,20 @@ function win() {
     setCoins();
 
     if (isFloorsMode) {
-        rows = parseInt(rows, 10)+1;
-        columns = parseInt(columns, 10)+1;
+        coinTiles.forEach(value => {
+            let button = document.querySelector('#button' + value);
+            if (button.classList.contains('button_pressed'))  {
+                coins++;
+                setCoins();
+            }
+        });
+    
+        currentFloor++;
+        setFloor();
+        rows = Math.min(parseInt(rows, 10)+Math.floor(Math.random()*2+1), 17);
+        columns = Math.min(parseInt(columns, 10)+Math.floor(Math.random()*2+1), 28);
         bombNum = Math.min(parseInt(bombNum, 10) + 
-            Math.floor(Math.sqrt(parseInt(rows, 10)+parseInt(columns, 10))), 2*rows*columns/3)
+            Math.floor(Math.sqrt(parseInt(rows, 10)+parseInt(columns, 10))), rows*columns/4)
         generateField(parseInt(rows, 10), parseInt(columns, 10))
         return;
     }
@@ -414,6 +434,20 @@ function setHearts() {
 function setCoins() {
     let container = document.querySelector('#coinamount')
     container.innerHTML = `${coins}`;
+    if (!allowPickups) {
+        container.classList.add('disabled');
+    } else {
+        container.classList.remove('disabled');
+    }
+}
+function setFloor() {
+    let container = document.querySelector('#floor')
+    container.innerHTML = `Floor ${currentFloor}`;
+    if (!isFloorsMode) {
+        container.classList.add('disabled');
+    } else {
+        container.classList.remove('disabled');
+    }
 }
 
 async function loadJSON(path) {
@@ -467,10 +501,10 @@ function toggleFloors() {
     console.log(toggleButton)
     if (isFloorsMode) {
         isFloorsMode = false;
-        toggleButton.classList.add('toggle_on');
+        toggleButton.classList.remove('toggle_on');
     } else {
         isFloorsMode = true;
-        toggleButton.classList.remove('toggle_on')
+        toggleButton.classList.add('toggle_on')
     }
 }
 

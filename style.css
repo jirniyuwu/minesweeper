@@ -265,6 +265,10 @@ input {
     background-repeat: no-repeat;
     display: inline;
 }
+#coinamount.disabled {
+    display: none;
+    pointer-events: none;
+}
 
 .explosion {
     width: 80px;
@@ -349,4 +353,23 @@ input {
 }
 .toggle_on {
     background-image: url(sprites/toggle_on.png);
+}
+
+#floor {
+    border: none;
+    font-family: monocraft;
+    font-size: 28px;
+    color: #333349;
+    width: 244px;
+    height: 40px;
+    padding: 12px 12px 12px 12px;
+    background-image: url(sprites/textbox.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    display: inline;
+    text-wrap-mode: nowrap;
+}
+#floor.disabled {
+    display: none;
+    pointer-events: none;
 }
