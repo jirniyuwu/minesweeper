@@ -267,14 +267,18 @@ function revealTiles() {
     hearts.forEach(value => {
         let button = document.querySelector('#button' + value);
         button.classList.replace('button', 'button_low');
-        button.innerHTML = `<div class="bg num${getBombNeighbors(value).length}">
-                <div class="bg heartpickup"></div></div>`;
+        button.innerHTML = button.classList.contains('button_pressed') ? 
+            `<div class="bg num${getBombNeighbors(value).length}">
+            <div class="bg heartpickup"></div></div>` : 
+            `<div class="bg heartpickup"></div>`;
     });
     eyes.forEach(value => {
         let button = document.querySelector('#button' + value);
         button.classList.replace('button', 'button_low');
-        button.innerHTML = `<div class="bg num${getBombNeighbors(value).length}">
-                <div class="bg eyepickup"></div></div>`;
+        button.innerHTML = button.classList.contains('button_pressed') ? 
+            `<div class="bg num${getBombNeighbors(value).length}">
+            <div class="bg eyepickup"></div></div>` : 
+            `<div class="bg eyepickup"></div>`;
     });
 }
 
