@@ -76,6 +76,17 @@ input {
 .button_flagged:hover {
     background-image: if(style(--is-active: 1): url(sprites/button_flagged_hold.png); else: url(sprites/button_flagged.png));
 }
+.locked_button {
+    border: none;
+    width: 64px;
+    height: 64px;
+    margin: 0px 0px -12px 0px;
+    background-image: url(sprites/button_locked.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    cursor: default;
+    pointer-events: none;
+}
 .wall_button {
     border: none;
     width: 64px;
@@ -118,6 +129,13 @@ input {
 }
 .eyepickup:hover {
     background-image: if(style(--is-active: 1): url(sprites/eye_active.png); else: url(sprites/eye.png));
+}
+.keypickup {
+    background-image: url(sprites/key.png);
+    cursor: if(style(--is-active: 1): pointer; else: default);
+}
+.keypickup:hover {
+    background-image: if(style(--is-active: 1): url(sprites/key_active.png); else: url(sprites/key.png));
 }
 
 .button_toggle {

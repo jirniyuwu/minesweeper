@@ -5,6 +5,7 @@ let bombNum;
 let flags = [];
 let hearts = [];
 let eyes = [];
+let keys = []
 let isFirstClick = true;
 let canClickButton = true;
 let flagMode = false;
@@ -14,6 +15,7 @@ let resistedBombs = 0;
 let clickedBombs = [];
 let pickedPickups = [];
 let wallTiles = [];
+let lockedTiles = [];
 
 document.addEventListener('keydown', (event) => {
     let toggleButton = document.querySelector('#flag_toggle')
@@ -75,10 +77,15 @@ async function generateField(row, column) {
     for (let i = 0; i < rows; i++) {
         fieldHtml += `<div class="row" id="row${i}">`
         for (let j = 0; j < columns; j++) {
-            fieldHtml += !(wallTiles.includes(j + columns*i)) ? 
-            `<button onclick="clickButton(${j + columns*i}, true)"
-            class="button" id="button${j + columns*i}"></button>` : 
-            `<button class="wall_button" id="button${j + columns*i}"></button>`
+            if (wallTiles.includes(j + columns*i)) {
+                fieldHtml += `<button class="wall_button" id="button${j + columns*i}"></button>`
+            } else if (lockedTiles.includes(j + columns*i)) {
+                fieldHtml += `<button onclick="clickButton(${j + columns*i}, true)"
+                class="button locked_button" id="button${j + columns*i}"></button>`
+            } else {
+                fieldHtml += `<button onclick="clickButton(${j + columns*i}, true)"
+                class="button" id="button${j + columns*i}"></button>`;
+            }
         }   
         fieldHtml += `</div>`
     }
@@ -109,16 +116,30 @@ function generateBombs(id) {
 }
 function generatePickups() {
     let exclude = [...bombs, ...wallTiles];
+    generateKey(exclude);
     generateHearts(exclude);
     generateEyes(exclude);
 
     pickedPickups = []
 }
 
+function generateKey(exclude) {
+    keys = [];
+    if (lockedTiles.length > 0) {
+        max = 1;
+        while (keys.length < max) {
+            let keyId = Math.floor(Math.random() * rows * columns);
+            if (!exclude.includes(keyId) && !lockedTiles.includes(keyId)) {
+                keys.push(keyId)
+            }
+        }
+    }
+    exclude = [...exclude, ...keys]
+}
 function generateHearts(exclude) {
     hearts = [];
     max = bombNum/10 + Math.floor(Math.random() * 2 - 2)
-    while (hearts.length <= max) {
+    while (hearts.length < max) {
         let heartId = Math.floor(Math.random() * rows * columns);
         if (!hearts.includes(heartId) && !exclude.includes(heartId)) {
             hearts.push(heartId)
@@ -129,7 +150,7 @@ function generateHearts(exclude) {
 function generateEyes(exclude) {
     eyes = [];
     max = bombNum/30 + Math.floor(Math.random() * 5 - 4)
-    while (eyes.length <= max) {
+    while (eyes.length < max) {
         let eyeId = Math.floor(Math.random() * rows * columns);
         if (!eyes.includes(eyeId) && !exclude.includes(eyeId)) {
             eyes.push(eyeId)
@@ -159,7 +180,7 @@ function getBombNeighbors(id) {
 
 function clickButton(id, isClick) {
     let button = document.querySelector('#button' + id);
-    if (canClickButton && !clickedBombs.includes(id) && !wallTiles.includes(id)) {
+    if (canClickButton && !clickedBombs.includes(id) && !wallTiles.includes(id) && !lockedTiles.includes(id)) {
         let nearBombs = getBombNeighbors(id).length;
         if ((bombs.includes(id) || nearBombs > 0) && isFirstClick) {
             generateBombs(id);
@@ -190,6 +211,16 @@ function clickButton(id, isClick) {
                 }
                 eyes = eyes.filter(value => value != id);
                 pickedPickups = pickedPickups.filter(value => value != id);
+                return;
+            }
+            if (keys.includes(id)) {
+                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
+                lockedTiles.forEach(lockId => {
+                    let lock = document.querySelector('#button' + lockId);
+                    lock.classList.remove("locked_button")
+                });
+                lockedTiles = [];
+                keys = [];
                 return;
             }
         }
@@ -232,6 +263,11 @@ function clickButton(id, isClick) {
                 <div class="bg eyepickup"></div></div>`
                 pickedPickups.push(id);
             }
+            if (keys.includes(id)) {
+                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+                <div class="bg keypickup"></div></div>`
+                pickedPickups.push(id);
+            }
         }
         if (winCondition()) {
             win();
@@ -247,6 +283,14 @@ function lose() {
 }
 
 function win() {
+    /* for floors mode
+    rows = parseInt(rows, 10)+1;
+    columns = parseInt(columns, 10)+1;
+    bombNum = Math.min(parseInt(bombNum, 10) + 
+        Math.floor(Math.sqrt(parseInt(rows, 10)+parseInt(columns, 10))), 2*rows*columns/3)
+    generateField(parseInt(rows, 10), parseInt(columns, 10))
+    */
+
     document.documentElement.style.setProperty('--is-active', 0);
     canClickButton = false;   
     document.querySelector('#endscreen').classList.add('screen_win');
@@ -279,6 +323,14 @@ function revealTiles() {
             `<div class="bg num${getBombNeighbors(value).length}">
             <div class="bg eyepickup"></div></div>` : 
             `<div class="bg eyepickup"></div>`;
+    });
+    keys.forEach(value => {
+        let button = document.querySelector('#button' + value);
+        button.classList.replace('button', 'button_low');
+        button.innerHTML = button.classList.contains('button_pressed') ? 
+            `<div class="bg num${getBombNeighbors(value).length}">
+            <div class="bg keypickup"></div></div>` : 
+            `<div class="bg keypickup"></div>`;
     });
 }
 
@@ -317,6 +369,7 @@ async function loadJSON(path) {
 }
 async function parseWallsJson(name) {
     wallTiles = []
+    lockedTiles = [];
     let data = await loadJSON('./walls.json')
     try {
         let walls = data[name]
@@ -331,12 +384,16 @@ async function parseWallsJson(name) {
                     case '#':
                         wallTiles.push(i);
                         break;
+                    case '/':
+                        lockedTiles.push(i);
+                        break;
                     default:
                         break;
                 }
             }
         }
     } catch {
+        lockedTiles = [];
         wallTiles = [];
     }
 }
