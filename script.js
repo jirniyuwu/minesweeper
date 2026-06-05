@@ -43,7 +43,7 @@ function isButtonPressed(id) {
     return document.querySelector('#button' + id).classList.contains("button_pressed")
 }
 
-function resetGame() {
+async function resetGame() {
     row = document.getElementById("row").value;
     column = document.getElementById("column").value;
     bombNum = document.getElementById("bombs").value;
@@ -53,9 +53,10 @@ function resetGame() {
     document.documentElement.style.setProperty('--is-active', 1)
     generateField(row, column);
 }
-function generateField(row, column) {
+async function generateField(row, column) {
     rows = row;
-    columns = column
+    columns = column;
+    await parseWallsJson(rows+'x'+columns);
     document.querySelector('#endscreen').classList.remove('screen_win', 'screen_lose');
     if (bombNum > rows*columns-wallTiles.length-9) {
         throw new Error("too many bombs");
@@ -107,7 +108,7 @@ function generateBombs(id) {
     generatePickups();
 }
 function generatePickups() {
-    let exclude = [...bombs];
+    let exclude = [...bombs, ...wallTiles];
     generateHearts(exclude);
     generateEyes(exclude);
 
@@ -116,7 +117,8 @@ function generatePickups() {
 
 function generateHearts(exclude) {
     hearts = [];
-    while (hearts.length <= bombNum/10) {
+    max = bombNum/10 + Math.floor(Math.random() * 2 - 2)
+    while (hearts.length <= max) {
         let heartId = Math.floor(Math.random() * rows * columns);
         if (!hearts.includes(heartId) && !exclude.includes(heartId)) {
             hearts.push(heartId)
@@ -126,7 +128,8 @@ function generateHearts(exclude) {
 }
 function generateEyes(exclude) {
     eyes = [];
-    while (eyes.length <= bombNum/30) {
+    max = bombNum/30 + Math.floor(Math.random() * 5 - 4)
+    while (eyes.length <= max) {
         let eyeId = Math.floor(Math.random() * rows * columns);
         if (!eyes.includes(eyeId) && !exclude.includes(eyeId)) {
             eyes.push(eyeId)
@@ -264,13 +267,13 @@ function revealTiles() {
     hearts.forEach(value => {
         let button = document.querySelector('#button' + value);
         button.classList.replace('button', 'button_low');
-        button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+        button.innerHTML = `<div class="bg num${getBombNeighbors(value).length}">
                 <div class="bg heartpickup"></div></div>`;
     });
     eyes.forEach(value => {
         let button = document.querySelector('#button' + value);
         button.classList.replace('button', 'button_low');
-        button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+        button.innerHTML = `<div class="bg num${getBombNeighbors(value).length}">
                 <div class="bg eyepickup"></div></div>`;
     });
 }
@@ -293,4 +296,43 @@ function setHearts() {
         html += `<div id="life${i}" class="${i < currentLife ? 'heart' : 'heart_empty'}"></div>`
     }
     container.innerHTML = html;
+}
+
+async function loadJSON(path) {
+  try {
+    const response = await fetch(path); 
+    
+    if (!response.ok) {
+      throw new Error(`failed to load json: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('failed to load json:', error);
+  }
+}
+async function parseWallsJson(name) {
+    wallTiles = []
+    let data = await loadJSON('./walls.json')
+    try {
+        let walls = data[name]
+        if (typeof walls[0] !== "string") {
+            walls = walls[Math.floor(Math.random() * (walls.length + 1))]
+        }
+        let wallsLayout = [...walls.join()].filter(value => value != ",")
+        if (wallsLayout.length == rows*columns) {
+            for (let i = 0; i < wallsLayout.length; i++) {
+                let char = wallsLayout[i];
+                switch (char) {
+                    case '#':
+                        wallTiles.push(i);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    } catch {
+        wallTiles = [];
+    }
 }
