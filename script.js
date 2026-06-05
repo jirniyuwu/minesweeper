@@ -5,13 +5,15 @@ let bombNum;
 let flags = [];
 let hearts = [];
 let eyes = [];
-let keys = []
+let keys = [];
+let coinTiles = [];
 let isFirstClick = true;
 let canClickButton = true;
 let flagMode = false;
 let currentLife;
 let maxLife = 3;
 let resistedBombs = 0;
+let coins = 0;
 let clickedBombs = [];
 let pickedPickups = [];
 let wallTiles = [];
@@ -50,7 +52,9 @@ async function resetGame() {
     column = document.getElementById("column").value;
     bombNum = document.getElementById("bombs").value;
     currentLife = maxLife;
+    coins = 0;
     setHearts();
+    setCoins();
     canClickButton = true;
     document.documentElement.style.setProperty('--is-active', 1)
     generateField(row, column);
@@ -119,6 +123,7 @@ function generatePickups() {
     generateKey(exclude);
     generateHearts(exclude);
     generateEyes(exclude);
+    generateCoins(exclude);
 
     pickedPickups = []
 }
@@ -139,7 +144,7 @@ function generateKey(exclude) {
 function generateHearts(exclude) {
     hearts = [];
     max = bombNum/10 + Math.floor(Math.random() * 2 - 2)
-    while (hearts.length < max) {
+    while (hearts.length < max && exclude.length + hearts.length < rows*columns) {
         let heartId = Math.floor(Math.random() * rows * columns);
         if (!hearts.includes(heartId) && !exclude.includes(heartId)) {
             hearts.push(heartId)
@@ -150,13 +155,24 @@ function generateHearts(exclude) {
 function generateEyes(exclude) {
     eyes = [];
     max = bombNum/30 + Math.floor(Math.random() * 5 - 4)
-    while (eyes.length < max) {
+    while (eyes.length < max && exclude.length + eyes.length < rows*columns) {
         let eyeId = Math.floor(Math.random() * rows * columns);
         if (!eyes.includes(eyeId) && !exclude.includes(eyeId)) {
             eyes.push(eyeId)
         }
     }
     exclude = [...exclude, ...eyes]
+}
+function generateCoins(exclude) {
+    coinTiles = [];
+    max = bombNum/5 + Math.floor(Math.random() * 7 - 2)
+    while (coinTiles.length < max && exclude.length + coinTiles.length < rows*columns) {
+        let coinId = Math.floor(Math.random() * rows * columns);
+        if (!coinTiles.includes(coinId) && !exclude.includes(coinId)) {
+            coinTiles.push(coinId)
+        }
+    }
+    exclude = [...exclude, ...coinTiles]
 }
 
 function getNeighbors(id) {
@@ -221,6 +237,15 @@ function clickButton(id, isClick) {
                 });
                 lockedTiles = [];
                 keys = [];
+                pickedPickups = pickedPickups.filter(value => value != id);
+                return;
+            }
+            if (coinTiles.includes(id)) {
+                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
+                coins++;
+                setCoins();
+                coinTiles = coinTiles.filter(value => value != id);
+                pickedPickups = pickedPickups.filter(value => value != id);
                 return;
             }
         }
@@ -268,6 +293,11 @@ function clickButton(id, isClick) {
                 <div class="bg keypickup"></div></div>`
                 pickedPickups.push(id);
             }
+            if (coinTiles.includes(id)) {
+                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+                <div class="bg coinpickup"></div></div>`
+                pickedPickups.push(id);
+            }
         }
         if (winCondition()) {
             win();
@@ -290,6 +320,15 @@ function win() {
         Math.floor(Math.sqrt(parseInt(rows, 10)+parseInt(columns, 10))), 2*rows*columns/3)
     generateField(parseInt(rows, 10), parseInt(columns, 10))
     */
+    
+    let coinsGained = 0;
+    flags.forEach(flag => {
+        if (bombs.includes(flag)) {
+            coinsGained++;
+        }
+    });
+    coins += Math.floor(Math.sqrt(coinsGained+2))
+    setCoins();
 
     document.documentElement.style.setProperty('--is-active', 0);
     canClickButton = false;   
@@ -307,6 +346,14 @@ function revealTiles() {
         if (!flags.includes(value)) {
         button.classList.replace('button', 'button_low');
         button.innerHTML = `<div class="bg bomb"></div>`};
+    });
+    coinTiles.forEach(value => {
+        let button = document.querySelector('#button' + value);
+        button.classList.replace('button', 'button_low');
+        button.innerHTML = button.classList.contains('button_pressed') ? 
+            `<div class="bg num${getBombNeighbors(value).length}">
+            <div class="bg coinpickup"></div></div>` : 
+            `<div class="bg coinpickup"></div>`;
     });
     hearts.forEach(value => {
         let button = document.querySelector('#button' + value);
@@ -352,6 +399,10 @@ function setHearts() {
         html += `<div id="life${i}" class="${i < currentLife ? 'heart' : 'heart_empty'}"></div>`
     }
     container.innerHTML = html;
+}
+function setCoins() {
+    let container = document.querySelector('#coinamount')
+    container.innerHTML = `${coins}`;
 }
 
 async function loadJSON(path) {

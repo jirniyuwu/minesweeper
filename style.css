@@ -137,6 +137,13 @@ input {
 .keypickup:hover {
     background-image: if(style(--is-active: 1): url(sprites/key_active.png); else: url(sprites/key.png));
 }
+.coinpickup {
+    background-image: url(sprites/coin_pickup.png);
+    cursor: if(style(--is-active: 1): pointer; else: default);
+}
+.coinpickup:hover {
+    background-image: if(style(--is-active: 1): url(sprites/coin_pickup_active.png); else: url(sprites/coin_pickup.png));
+}
 
 .button_toggle {
     border: none;
@@ -242,6 +249,20 @@ input {
     background-image: url(sprites/heart_empty.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
+}
+
+#coinamount {
+    border: none;
+    font-family: monocraft;
+    font-size: 28px;
+    color: #333349;
+    width: 136px;
+    height: 40px;
+    padding: 12px 12px 12px 64px;
+    background-image: url(sprites/coinamount.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    display: inline;
 }
 
 .explosion {
