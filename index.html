@@ -3,7 +3,7 @@
     <head>
         <title>minesweeper</title>
         <icon></icon>
-        <script src="script.js"></script>
+        <script src="script.js" defer></script>
         <link rel="stylesheet" href="style.css">
         <link rel="icon" href="icon.png">
     </head>
@@ -17,6 +17,15 @@
                             <input type="number" class="ddcontent textbox rowsinput" id="row" placeholder="row" value="16">
                             <input type="number" class="ddcontent textbox columnsinput" id="column" placeholder="column" value="10">
                             <input type="number" class="ddcontent textbox bombsinput" id="bombs" placeholder="bombs" value="32">
+                            <input type="number" class="ddcontent textbox heartsinput" id="heart" placeholder="hearts" value="3">
+                        </div>
+                        <div class="toggle_container">
+                            <div class="toggle" id="floors_toggle" onclick="toggleFloors()"></div>
+                            <div class="toggle_text">Infinite mode</div>
+                        </div>
+                        <div class="toggle_container">
+                            <div class="toggle toggle_on" id="pickups_toggle" onclick="togglePickups()"></div>
+                            <div class="toggle_text">Pickups</div>
                         </div>
                     </div>
                 </div>

@@ -11,7 +11,7 @@ let isFirstClick = true;
 let canClickButton = true;
 let flagMode = false;
 let currentLife;
-let maxLife = 3;
+let maxLife;
 let resistedBombs = 0;
 let coins = 0;
 let clickedBombs = [];
@@ -19,6 +19,7 @@ let pickedPickups = [];
 let wallTiles = [];
 let lockedTiles = [];
 let isFloorsMode = false;
+let allowPickups = true;
 
 document.addEventListener('keydown', (event) => {
     let toggleButton = document.querySelector('#flag_toggle')
@@ -52,6 +53,7 @@ async function resetGame() {
     row = document.getElementById("row").value;
     column = document.getElementById("column").value;
     bombNum = document.getElementById("bombs").value;
+    maxLife = document.getElementById("heart").value;
     currentLife = maxLife;
     coins = 0;
     setHearts();
@@ -102,7 +104,9 @@ async function generateField(row, column) {
             bombs.push(bombId)
         }
     }
-    generatePickups();
+    if (allowPickups) {
+        generatePickups();
+    }
 }
 
 function generateBombs(id) {
@@ -117,7 +121,9 @@ function generateBombs(id) {
             bombs.push(bombId)
         }
     }
-    generatePickups();
+    if (allowPickups) {
+        generatePickups();
+    }
 }
 function generatePickups() {
     let exclude = [...bombs, ...wallTiles];
@@ -143,6 +149,9 @@ function generateKey(exclude) {
     exclude = [...exclude, ...keys]
 }
 function generateHearts(exclude) {
+    if (maxLife == 1) {
+        return;
+    }
     hearts = [];
     max = bombNum/10 + Math.floor(Math.random() * 2 - 2)
     while (hearts.length < max && exclude.length + hearts.length < rows*columns) {
@@ -221,7 +230,7 @@ function clickButton(id, isClick) {
                 while (!reveal && attempts < 256) {
                     let randomId = Math.floor(Math.random() * rows * columns);
                     if (!exclude.includes(randomId) && !isButtonPressed(randomId)) {
-                        clickButton(randomId)
+                        clickButton(randomId, false)
                         reveal = true;
                     }
                     attempts++;
@@ -438,7 +447,9 @@ async function parseWallsJson(name) {
                         wallTiles.push(i);
                         break;
                     case '/':
-                        lockedTiles.push(i);
+                        if (allowPickups) {
+                            lockedTiles.push(i);
+                        }
                         break;
                     default:
                         break;
@@ -448,6 +459,30 @@ async function parseWallsJson(name) {
     } catch {
         lockedTiles = [];
         wallTiles = [];
+    }
+}
+
+function toggleFloors() {
+    let toggleButton = document.querySelector('#floors_toggle');
+    console.log(toggleButton)
+    if (isFloorsMode) {
+        isFloorsMode = false;
+        toggleButton.classList.add('toggle_on');
+    } else {
+        isFloorsMode = true;
+        toggleButton.classList.remove('toggle_on')
+    }
+}
+
+function togglePickups() {
+    let toggleButton = document.querySelector('#pickups_toggle');
+    console.log(toggleButton)
+    if (allowPickups) {
+        allowPickups = false;
+        toggleButton.classList.remove('toggle_on');
+    } else {
+        allowPickups = true;
+        toggleButton.classList.add('toggle_on')
     }
 }
 

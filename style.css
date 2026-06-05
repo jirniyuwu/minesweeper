@@ -1,6 +1,6 @@
 :root {
     background-color: #54536E;
-    font-family: arial;
+    font-family: monocraft;
     image-rendering: pixelated;
 }
 button {
@@ -206,6 +206,7 @@ input {
 .rowsinput {background-image: url(sprites/textbox_rows.png)}
 .columnsinput {background-image: url(sprites/textbox_columns.png)}
 .bombsinput {background-image: url(sprites/textbox_bombs.png)}
+.heartsinput {background-image: url(sprites/textbox_hearts.png)}
 
 #endscreen {
     border: none;
@@ -303,7 +304,8 @@ input {
     background-image: url(sprites/settings_active.png);
 }
 .inputrow {
-    display:flex;
+    display: flex;
+    margin: 0px -4px -4px 0px;
 }
 .dropdown {
     position: relative;
@@ -314,8 +316,37 @@ input {
     top: calc(100% - 16px);
     opacity: 0;
     pointer-events: none;
+    z-index: 1;
 }
 .dropdown.activedropdown > #settings + .menu {
     opacity: 1;
     pointer-events: auto;
+}
+.toggle_container {
+    border: none;
+    display: flex;
+    width: max-content;
+}
+.toggle_text {
+    font-size: 28px;
+    color: #333349;
+    height: 40px;
+    width: 268px;
+    padding: 12px;
+    background-image: url(sprites/textbox.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
+.toggle {
+    border: none;
+    width: 96px;
+    height: 64px;
+    margin: 0px 0px 0px 0px;
+    background-image: url(sprites/toggle_off.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+.toggle_on {
+    background-image: url(sprites/toggle_on.png);
 }
