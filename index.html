@@ -10,9 +10,16 @@
     <body>
         <div id="board">
             <div id="inputbox">
-                <input type="number" class="textbox rowsinput" id="row" placeholder="row" value="16">
-                <input type="number" class="textbox columnsinput" id="column" placeholder="column" value="10">
-                <input type="number" class="textbox bombsinput" id="bombs" placeholder="bombs" value="32">
+                <div class="dropdown" data-dropdown>
+                    <div id="settings" data-dropdown-button data-dropdown-toggle></div>
+                    <div class="menu" data-dropdown-button>
+                        <div class="inputrow">
+                            <input type="number" class="ddcontent textbox rowsinput" id="row" placeholder="row" value="16">
+                            <input type="number" class="ddcontent textbox columnsinput" id="column" placeholder="column" value="10">
+                            <input type="number" class="ddcontent textbox bombsinput" id="bombs" placeholder="bombs" value="32">
+                        </div>
+                    </div>
+                </div>
                 <button onclick="resetGame()" class="refresh"></button>
                 <div class="button_toggle" id="flag_toggle" onclick="flagToggle()"></div>
                 <div id="coinamount">0</div>

@@ -18,6 +18,7 @@ let clickedBombs = [];
 let pickedPickups = [];
 let wallTiles = [];
 let lockedTiles = [];
+let isFloorsMode = false;
 
 document.addEventListener('keydown', (event) => {
     let toggleButton = document.querySelector('#flag_toggle')
@@ -313,14 +314,6 @@ function lose() {
 }
 
 function win() {
-    /* for floors mode
-    rows = parseInt(rows, 10)+1;
-    columns = parseInt(columns, 10)+1;
-    bombNum = Math.min(parseInt(bombNum, 10) + 
-        Math.floor(Math.sqrt(parseInt(rows, 10)+parseInt(columns, 10))), 2*rows*columns/3)
-    generateField(parseInt(rows, 10), parseInt(columns, 10))
-    */
-    
     let coinsGained = 0;
     flags.forEach(flag => {
         if (bombs.includes(flag)) {
@@ -329,6 +322,15 @@ function win() {
     });
     coins += Math.floor(Math.sqrt(coinsGained+2))
     setCoins();
+
+    if (isFloorsMode) {
+        rows = parseInt(rows, 10)+1;
+        columns = parseInt(columns, 10)+1;
+        bombNum = Math.min(parseInt(bombNum, 10) + 
+            Math.floor(Math.sqrt(parseInt(rows, 10)+parseInt(columns, 10))), 2*rows*columns/3)
+        generateField(parseInt(rows, 10), parseInt(columns, 10))
+        return;
+    }
 
     document.documentElement.style.setProperty('--is-active', 0);
     canClickButton = false;   
@@ -448,3 +450,27 @@ async function parseWallsJson(name) {
         wallTiles = [];
     }
 }
+
+document.addEventListener('click', e => {
+    const isDropdown = e.target.matches("[data-dropdown-button]")
+    if (!isDropdown && e.target.closest("[data-dropdown]") != null) {
+        return;
+    } 
+
+    let currentDropdown;
+    if (isDropdown) {
+        currentDropdown = e.target.closest("[data-dropdown]")
+        if (e.target.matches('[data-dropdown-toggle]')) {
+            currentDropdown.classList.toggle('activedropdown')
+        } else  {
+            currentDropdown.classList.add('activedropdown')
+        }
+    }
+    document.querySelectorAll("[data-dropdown].activedropdown").forEach(dropdown => {
+        if (dropdown === currentDropdown) {
+            return;
+        } else {
+            dropdown.classList.remove('activedropdown')
+        }
+    })
+})

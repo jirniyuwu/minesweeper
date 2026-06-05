@@ -286,3 +286,36 @@ input {
     background-position: -880px 0px;
   }
 }
+
+#settings {
+    border: none;
+    width: 64px;
+    height: 64px;
+    background-image: url(sprites/settings.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+#settings:hover {
+    background-image: url(sprites/settings_hold.png);
+}
+#settings:active {
+    background-image: url(sprites/settings_active.png);
+}
+.inputrow {
+    display:flex;
+}
+.dropdown {
+    position: relative;
+}
+.menu {
+    position: absolute;
+    left: 0px;
+    top: calc(100% - 16px);
+    opacity: 0;
+    pointer-events: none;
+}
+.dropdown.activedropdown > #settings + .menu {
+    opacity: 1;
+    pointer-events: auto;
+}
