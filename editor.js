@@ -170,7 +170,8 @@ function exportButton(copy) {
 
 function exportAndPlay() {
     exportButton(false);
-    window.location.assign('/?custom=true')
+    let redirect = window.location.origin + window.location.pathname.replace('editor.html', '');
+    window.location.assign(redirect + '?custom=true')
 }
 
 document.querySelector('#field').addEventListener('mousedown', (event) => {
