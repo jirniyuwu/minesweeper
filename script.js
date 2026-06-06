@@ -560,8 +560,6 @@ function checkCustomParam() {
         document.getElementById("column").value = localStorage.getItem('clColumns')
         document.getElementById("bombs").value = int(localStorage.getItem('clRows')*localStorage.getItem('clColumns')/6)
     }
-
-    console.log(isCustom)
 }
 
 function toggleFloors() {
@@ -593,7 +591,8 @@ function toggleCustomLayout() {
         toggleButton.classList.remove('toggle_on');
     } else {
         if (localStorage.getItem('customLayout') == null) {
-            window.location.replace('/editor.html')
+            let currentUrl = window.location.origin + window.location.pathname.replace('index.html', '');
+            window.location.assign(currentUrl + 'editor.html')
             return;
         }
         customLayout = true;
