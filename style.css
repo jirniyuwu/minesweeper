@@ -396,3 +396,154 @@ input {
     font-weight: normal;
     font-style: normal;
 }
+
+
+
+.button_selector {
+    display: flex;
+}
+
+#blank_button {
+    background-image: url(sprites/button.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    width: 64px;
+    height: 64px;
+    margin: 0px 8px 8px 0px;
+    cursor: pointer;
+}
+#blank_button:hover {
+    background-image: url(sprites/button_hold.png);
+}
+#blank_button:checked {
+    background-image: url(sprites/button_hold.png);
+}
+
+#wall_button {
+    background-image: url(sprites/wall.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    width: 64px;
+    height: 64px;
+    margin: 0px 8px 8px 0px;
+    cursor: pointer;
+}
+#wall_button:hover {
+    background-image: url(sprites/wall_active.png);
+}
+#wall_button:active {
+    background-image: url(sprites/wall_active.png);
+}
+#wall_button:checked {
+    background-image: url(sprites/wall_active.png);
+}
+
+#locked_button {
+    background-image: url(sprites/button_locked.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    width: 64px;
+    height: 64px;
+    margin: 0px 8px 8px 0px;
+    cursor: pointer;
+}
+#locked_button:hover {
+    background-image: url(sprites/button_locked_active.png);
+}
+#locked_button:active {
+    background-image: url(sprites/button_locked_active.png);
+}
+#locked_button:checked {
+    background-image: url(sprites/button_locked_active.png);
+}
+
+.editrow {
+    display: flex;
+    column-gap: 0px;
+}
+.editbutton {
+    border: none;
+    width: 64px;
+    height: 64px;
+    margin: 0px 0px 0px 0px;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+.ed_button {
+    background-image: url(sprites/button.png);
+}
+.ed_button:hover {
+    background-image: url(sprites/button_hold.png);
+}
+.ed_locked_button {
+    background-image: url(sprites/button_locked.png);
+}
+.ed_locked_button:hover {
+    background-image: url(sprites/button_locked_active.png);
+}
+.ed_wall_button {
+    background-image: url(sprites/wall.png);
+}
+.ed_wall_button:hover {
+    background-image: url(sprites/wall_active.png);
+}
+
+#button_export {
+    border: none;
+    width: 64px;
+    height: 64px;
+    margin: 0px 0px 0px 0px;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    background-image: url(sprites/export.png);
+    position: relative;
+}
+#button_export:hover {
+    background-image: url(sprites/export_hold.png);
+}
+#button_export:active {
+    background-image: url(sprites/export_active.png);
+}
+#button_reset {
+    border: none;
+    width: 64px;
+    height: 64px;
+    margin: 0px 0px 0px 0px;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    background-image: url(sprites/refresh.png);
+    position: relative;
+}
+#button_reset:hover {
+    background-image: url(sprites/refresh_hold.png);
+}
+#button_reset:active {
+    background-image: url(sprites/refresh_active.png);
+}
+
+.text_export {
+    position: absolute;
+    left: 68px;
+    top: 0px;
+    pointer-events: none;
+    font-size: 14px;
+    color: #E1E1E8;
+    opacity: 0;
+}
+.text_animation {
+    opacity: 0;
+    color: #E1E1E8;
+    animation: opacity 1.0s;
+}
+
+@keyframes opacity {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}

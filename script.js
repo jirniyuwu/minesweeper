@@ -97,7 +97,7 @@ async function generateField(row, column) {
         throw new Error("too many bombs");
     } else if (rows > 512 || columns > 512 || rows*columns > 16384) {
         throw new Error("board too big")
-    } else if (rows < 1 || columns < 1 || bombs < 0) {
+    } else if (rows < 1 || columns < 1 || bombNum < 0) {
         throw new Error("negative values")
     }
 
