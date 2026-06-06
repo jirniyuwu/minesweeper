@@ -11,6 +11,7 @@ let eyes = [];
 let keys = [];
 let coinTiles = [];
 
+let customLayout = false;
 let wallTiles = [];
 let lockedTiles = [];
 
@@ -30,6 +31,9 @@ let flagMode = false;
 let isFloorsMode = false;
 let currentFloor = 0;
 
+if (localStorage.getItem('customLayout') != null) {
+    checkCustomParam();
+}
 resetGame();
 
 document.addEventListener('keydown', (event) => {
@@ -89,6 +93,7 @@ async function resetGame() {
 async function generateField(row, column) {
     rows = row;
     columns = column;
+
     if (!isFloorsMode) {
         await parseWallsJson(rows+'x'+columns);
     } // will remain until there are sufficient wall layouts
@@ -104,6 +109,7 @@ async function generateField(row, column) {
     clickedBombs = [];
     pickedPickups = [];
     flags = [];
+    coinTiles = [];
     resistedBombs = 0;
     isFirstClick = true;
 
@@ -245,6 +251,9 @@ function getBombNeighbors(id) {
 
 function clickButton(id, isClick) {
     let button = document.querySelector('#button' + id);
+    if (isFirstClick && !isClick) {
+        return;
+    }
     if (canClickButton && !clickedBombs.includes(id) && !wallTiles.includes(id)) {
         let nearBombs = getBombNeighbors(id).length;
         if ((bombs.includes(id) || nearBombs > 0) && isFirstClick) {
@@ -506,7 +515,10 @@ async function loadJSON(path) {
 async function parseWallsJson(name) {
     wallTiles = []
     lockedTiles = [];
-    let data = await loadJSON('./walls.json')
+
+    let custom = localStorage.getItem('customLayout')
+    let data = customLayout ? JSON.parse(custom) : await loadJSON('./walls.json')
+    
     try {
         let walls = data[name]
         if (typeof walls[0] !== "string") {
@@ -536,9 +548,24 @@ async function parseWallsJson(name) {
     }
 }
 
+function checkCustomParam() {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const isCustom = urlParams.get('custom') ? urlParams.get('custom') : false;
+
+    if (isCustom) {
+        customLayout = true;
+        document.querySelector('#layout_toggle').classList.add('toggle_on')
+        document.getElementById("row").value = localStorage.getItem('clRows')
+        document.getElementById("column").value = localStorage.getItem('clColumns')
+        document.getElementById("bombs").value = int(localStorage.getItem('clRows')*localStorage.getItem('clColumns')/6)
+    }
+
+    console.log(isCustom)
+}
+
 function toggleFloors() {
     let toggleButton = document.querySelector('#floors_toggle');
-    console.log(toggleButton)
     if (isFloorsMode) {
         isFloorsMode = false;
         toggleButton.classList.remove('toggle_on');
@@ -550,12 +577,26 @@ function toggleFloors() {
 
 function togglePickups() {
     let toggleButton = document.querySelector('#pickups_toggle');
-    console.log(toggleButton)
     if (allowPickups) {
         allowPickups = false;
         toggleButton.classList.remove('toggle_on');
     } else {
         allowPickups = true;
+        toggleButton.classList.add('toggle_on')
+    }
+}
+
+function toggleCustomLayout() {
+    let toggleButton = document.querySelector('#layout_toggle');
+    if (customLayout) {
+        customLayout = false;
+        toggleButton.classList.remove('toggle_on');
+    } else {
+        if (localStorage.getItem('customLayout') == null) {
+            window.location.replace('/editor.html')
+            return;
+        }
+        customLayout = true;
         toggleButton.classList.add('toggle_on')
     }
 }

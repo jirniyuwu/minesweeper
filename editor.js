@@ -107,7 +107,7 @@ function resetField() {
 function exportSet() {
     if (!isShifting) {
         let json = '';
-        json += `"${rows}x${columns}": [\n[\n`
+        json += `"${rows}x${columns}": [\n`
         for (let i = 0; i < rows; i++) {
             json += '"'
             for (let j = 0; j < columns; j++) {
@@ -122,7 +122,7 @@ function exportSet() {
             }
             json += i == rows-1 ? '"\n' : '", \n'
         }
-        json += ']\n]'
+        json += ']\n'
 
         return '{' + json + '}';
     } else {  
@@ -148,17 +148,29 @@ function exportSet() {
     }
 }
 
-function exportButton() {
+function exportButton(copy) {
     try {
-        navigator.clipboard.writeText(exportSet())
-        let text = document.querySelector('.text_export');
-        text.classList.add('text_animation');
-        text.addEventListener('animationend', (event) => {
-            text.classList.remove('text_animation');
-        })
+        let json = exportSet();
+        localStorage.setItem('customLayout', json);
+        localStorage.setItem('clRows', rows);
+        localStorage.setItem('clColumns', columns);
+
+        if (copy) {
+            navigator.clipboard.writeText(json)
+            let text = document.querySelector('.text_export');
+            text.classList.add('text_animation');
+            text.addEventListener('animationend', (event) => {
+                text.classList.remove('text_animation');
+            })
+        }
     } catch (error) {
-        alert('failed to copy')
+        alert('failed to export')
     }
+}
+
+function exportAndPlay() {
+    exportButton(false);
+    window.location.assign('/?custom=true')
 }
 
 document.querySelector('#field').addEventListener('mousedown', (event) => {

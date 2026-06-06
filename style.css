@@ -523,6 +523,23 @@ input {
 #button_reset:active {
     background-image: url(sprites/refresh_active.png);
 }
+#button_play {
+    border: none;
+    width: 64px;
+    height: 64px;
+    margin: 0px 0px 0px 0px;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    background-image: url(sprites/play.png);
+    position: relative;
+}
+#button_play:hover {
+    background-image: url(sprites/play_hold.png);
+}
+#button_play:active {
+    background-image: url(sprites/play_active.png);
+}
 
 .text_export {
     position: absolute;
