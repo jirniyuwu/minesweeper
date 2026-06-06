@@ -30,6 +30,8 @@ let flagMode = false;
 let isFloorsMode = false;
 let currentFloor = 0;
 
+resetGame();
+
 document.addEventListener('keydown', (event) => {
     let toggleButton = document.querySelector('#flag_toggle')
     if (!flagMode && event.shiftKey) {
@@ -69,6 +71,8 @@ async function resetGame() {
         column = 5;
         bombNum = 4;
         currentFloor = 1;
+        lockedTiles = [];
+        wallTiles = [];
         setFloor();
     }
 
@@ -123,10 +127,20 @@ async function generateField(row, column) {
     document.querySelector('#field').innerHTML = fieldHtml;
 
     bombs = [];
-    while (bombs.length < bombNum) {
-        let bombId = Math.floor(Math.random() * rows * columns);
-        if (!bombs.includes(bombId) && !wallTiles.includes(bombId)) {
-            bombs.push(bombId)
+    if (isFloorsMode) {
+        while (bombs.length < bombNum) {
+            let bombId = Math.floor(Math.random() * rows * columns);
+            if (!bombs.includes(bombId)) {
+                bombs.push(bombId)
+            }
+        }
+        bombs.filter(value => {!wallTiles.includes(value)})
+    } else {
+        while (bombs.length < bombNum) {
+            let bombId = Math.floor(Math.random() * rows * columns);
+            if (!bombs.includes(bombId) && !wallTiles.includes(bombId)) {
+                bombs.push(bombId)
+            }
         }
     }
     if (allowPickups) {
