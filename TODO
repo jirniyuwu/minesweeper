@@ -6,7 +6,7 @@ Todo:
   [+] dropdown menu config
   [+] lock and key tiles
   [] more walls json
-  [] editor mode
+  [+] editor mode
 
 Floors:
   [+] reset on win
