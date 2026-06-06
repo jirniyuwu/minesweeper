@@ -1,25 +1,33 @@
 let rows;
 let columns;
-let bombs = [];
-let bombNum;
+
+let allowPickups = true;
+let pickedPickups = [];
+let excludeForPickupGeneration = []
+
 let flags = [];
 let hearts = [];
 let eyes = [];
 let keys = [];
 let coinTiles = [];
+
+let wallTiles = [];
+let lockedTiles = [];
+
+let bombs = [];
+let bombNum;
+let resistedBombs = 0;
+let clickedBombs = [];
+
+let currentLife;
+let maxLife;
+let coins = 0;
+
 let isFirstClick = true;
 let canClickButton = true;
 let flagMode = false;
-let currentLife;
-let maxLife;
-let resistedBombs = 0;
-let coins = 0;
-let clickedBombs = [];
-let pickedPickups = [];
-let wallTiles = [];
-let lockedTiles = [];
+
 let isFloorsMode = false;
-let allowPickups = true;
 let currentFloor = 0;
 
 document.addEventListener('keydown', (event) => {
@@ -40,6 +48,7 @@ document.addEventListener('keyup', (event) => {
     }
 })
 
+function int(num) {return parseInt(num, 10)}
 function getButtonID(x, y) {
     let id = y*columns+x;
     return !wallTiles.includes(id) && x < columns && y < rows && x >= 0 && y >= 0 
@@ -54,6 +63,7 @@ async function resetGame() {
     row = document.getElementById("row").value;
     column = document.getElementById("column").value;
     bombNum = document.getElementById("bombs").value;
+
     if (isFloorsMode) {
         row = 5;
         column = 5;
@@ -61,12 +71,14 @@ async function resetGame() {
         currentFloor = 1;
         setFloor();
     }
+
     maxLife = document.getElementById("heart").value;
     currentLife = maxLife;
     coins = 0;
     setHearts();
     setCoins();
     canClickButton = true;
+
     document.documentElement.style.setProperty('--is-active', 1)
     generateField(row, column);
 }
@@ -84,11 +96,13 @@ async function generateField(row, column) {
     } else if (rows < 1 || columns < 1 || bombs < 0) {
         throw new Error("negative values")
     }
+
     clickedBombs = [];
     pickedPickups = [];
     flags = [];
     resistedBombs = 0;
     isFirstClick = true;
+
     document.querySelector('#field').innerHTML = '';
     let fieldHtml = '';
     for (let i = 0; i < rows; i++) {
@@ -107,6 +121,7 @@ async function generateField(row, column) {
         fieldHtml += `</div>`
     }
     document.querySelector('#field').innerHTML = fieldHtml;
+
     bombs = [];
     while (bombs.length < bombNum) {
         let bombId = Math.floor(Math.random() * rows * columns);
@@ -136,63 +151,63 @@ function generateBombs(id) {
     }
 }
 function generatePickups() {
-    let exclude = [...bombs, ...wallTiles];
-    generateKey(exclude);
-    generateHearts(exclude);
-    generateEyes(exclude);
-    generateCoins(exclude);
+    excludeForPickupGeneration = [...bombs, ...wallTiles];
+    generateKey();
+    generateHearts();
+    generateEyes();
+    generateCoins();
 
     pickedPickups = []
 }
 
-function generateKey(exclude) {
+function generateKey() {
     keys = [];
     if (lockedTiles.length > 0) {
         max = 1;
         while (keys.length < max) {
             let keyId = Math.floor(Math.random() * rows * columns);
-            if (!exclude.includes(keyId) && !lockedTiles.includes(keyId)) {
+            if (!excludeForPickupGeneration.includes(keyId) && !lockedTiles.includes(keyId)) {
                 keys.push(keyId)
             }
         }
     }
-    exclude = [...exclude, ...keys]
+    excludeForPickupGeneration = [...excludeForPickupGeneration, ...keys]
 }
-function generateHearts(exclude) {
+function generateHearts() {
     if (maxLife == 1) {
         return;
     }
     hearts = [];
     max = bombNum/10 + Math.floor(Math.random() * 2 - 2)
-    while (hearts.length < max && exclude.length + hearts.length < rows*columns) {
+    while (hearts.length < max && excludeForPickupGeneration.length + hearts.length < rows*columns) {
         let heartId = Math.floor(Math.random() * rows * columns);
-        if (!hearts.includes(heartId) && !exclude.includes(heartId)) {
+        if (!hearts.includes(heartId) && !excludeForPickupGeneration.includes(heartId)) {
             hearts.push(heartId)
         }
     }
-    exclude = [...exclude, ...hearts]
+    excludeForPickupGeneration = [...excludeForPickupGeneration, ...hearts]
 }
-function generateEyes(exclude) {
+function generateEyes() {
     eyes = [];
     max = bombNum/30 + Math.floor(Math.random() * 5 - 4)
-    while (eyes.length < max && exclude.length + eyes.length < rows*columns) {
+    while (eyes.length < max && excludeForPickupGeneration.length + eyes.length < rows*columns) {
         let eyeId = Math.floor(Math.random() * rows * columns);
-        if (!eyes.includes(eyeId) && !exclude.includes(eyeId)) {
+        if (!eyes.includes(eyeId) && !excludeForPickupGeneration.includes(eyeId)) {
             eyes.push(eyeId)
         }
     }
-    exclude = [...exclude, ...eyes]
+    excludeForPickupGeneration = [...excludeForPickupGeneration, ...eyes]
 }
-function generateCoins(exclude) {
+function generateCoins() {
     coinTiles = [];
     max = bombNum/5 + Math.floor(Math.random() * 7 - 2)
-    while (coinTiles.length < max && exclude.length + coinTiles.length < rows*columns) {
+    while (coinTiles.length < max && excludeForPickupGeneration.length + coinTiles.length < rows*columns) {
         let coinId = Math.floor(Math.random() * rows * columns);
-        if (!coinTiles.includes(coinId) && !exclude.includes(coinId)) {
+        if (!coinTiles.includes(coinId) && !excludeForPickupGeneration.includes(coinId)) {
             coinTiles.push(coinId)
         }
     }
-    exclude = [...exclude, ...coinTiles]
+    excludeForPickupGeneration = [...excludeForPickupGeneration, ...coinTiles]
 }
 
 function getNeighbors(id) {
@@ -216,7 +231,7 @@ function getBombNeighbors(id) {
 
 function clickButton(id, isClick) {
     let button = document.querySelector('#button' + id);
-    if (canClickButton && !clickedBombs.includes(id) && !wallTiles.includes(id) && !lockedTiles.includes(id)) {
+    if (canClickButton && !clickedBombs.includes(id) && !wallTiles.includes(id)) {
         let nearBombs = getBombNeighbors(id).length;
         if ((bombs.includes(id) || nearBombs > 0) && isFirstClick) {
             generateBombs(id);
@@ -234,7 +249,7 @@ function clickButton(id, isClick) {
             }
             if (eyes.includes(id)) {
                 button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
-                let exclude = [...bombs, ...wallTiles, ...flags]
+                let exclude = [...bombs, ...wallTiles, ...lockedTiles, ...flags]
                 let reveal = false;
                 let attempts = 0;
                 while (!reveal && attempts < 256) {
@@ -253,7 +268,8 @@ function clickButton(id, isClick) {
                 button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
                 lockedTiles.forEach(lockId => {
                     let lock = document.querySelector('#button' + lockId);
-                    lock.classList.remove("locked_button")
+                    lock.classList.replace("locked_button", "button")
+                    lock.classList.replace("locked_button_flagged", "button_flagged")
                 });
                 lockedTiles = [];
                 keys = [];
@@ -272,11 +288,13 @@ function clickButton(id, isClick) {
 
         if (flagMode && !flags.includes(id)) {
             button.classList.replace("button", "button_flagged");
+            button.classList.replace("locked_button", "locked_button_flagged");
             flags.push(id);
         } else if (flagMode && flags.includes(id)) {
             button.classList.replace("button_flagged", "button");
+            button.classList.replace("locked_button_flagged", "locked_button");
             flags = flags.filter(value => value != id);
-        } else if (!flags.includes(id)) {
+        } else if (!flags.includes(id) && !lockedTiles.includes(id)) {
             button.classList.replace("button", "button_pressed");
 
             if (bombs.includes(id)) {
@@ -353,11 +371,11 @@ function win() {
     
         currentFloor++;
         setFloor();
-        rows = Math.min(parseInt(rows, 10)+Math.floor(Math.random()*2+1), 17);
-        columns = Math.min(parseInt(columns, 10)+Math.floor(Math.random()*2+1), 28);
-        bombNum = Math.min(parseInt(bombNum, 10) + 
-            Math.floor(Math.sqrt(parseInt(rows, 10)+parseInt(columns, 10))), rows*columns/4)
-        generateField(parseInt(rows, 10), parseInt(columns, 10))
+        rows = Math.min(int(rows)+Math.floor(Math.random()*2+1), 17);
+        columns = Math.min(int(columns)+Math.floor(Math.random()*2+1), 28);
+        bombNum = Math.min(int(bombNum) + 
+            Math.floor(Math.sqrt(int(rows)+int(columns)))/2, (rows*columns-wallTiles.length)/4)
+        generateField(int(rows), int(columns))
         return;
     }
 
@@ -372,6 +390,14 @@ function winCondition() {
 }
 
 function revealTiles() {
+    flags.forEach(value => {
+        let button = document.querySelector('#button' + value);
+        if (!bombs.includes(value)) {
+            button.classList.replace('button_flagged', 'button');
+            button.classList.replace('locked_button_flagged', 'locked_button');
+            flags = flags.filter(id => id != value);
+        }
+    })
     bombs.forEach(value => {
         let button = document.querySelector('#button' + value);
         if (!flags.includes(value)) {

@@ -1,6 +1,6 @@
 :root {
     background-color: #54536E;
-    font-family: monocraft;
+    font-family: 'Monocraft';
     image-rendering: pixelated;
 }
 button {
@@ -85,7 +85,22 @@ input {
     background-size: 100% 100%;
     background-repeat: no-repeat;
     cursor: default;
-    pointer-events: none;
+}
+.locked_button:hover {
+    background-image: url(sprites/button_locked.png);
+}
+.locked_button_flagged {
+    border: none;
+    width: 64px;
+    height: 64px;
+    margin: 0px 0px -12px 0px;
+    background-image: url(sprites/button_locked_flagged.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    cursor: default;
+}
+.locked_button_flagged:hover {
+    background-image: url(sprites/button_locked_flagged.png);
 }
 .wall_button {
     border: none;
@@ -372,4 +387,11 @@ input {
 #floor.disabled {
     display: none;
     pointer-events: none;
+}
+
+@font-face {
+    font-family: 'Monocraft';
+    src: url('https://cdn.jsdelivr.net/gh/IdreesInc/Monocraft@main/dist/Monocraft-ttf/Monocraft.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
 }

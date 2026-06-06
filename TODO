@@ -3,11 +3,13 @@ Todo:
   [] megabomb
   [+] void tiles
   [+] void tiles json parser
-  [] dropdown menu config
+  [+] dropdown menu config
   [+] lock and key tiles
+  [] more walls json
+  [] editor mode
 
 Floors:
   [+] reset on win
-  [] floor counter
+  [+] floor counter
   [] shop and currency
   [] difficulty scaling
