@@ -27,6 +27,7 @@ let coins = 0;
 let isFirstClick = true;
 let canClickButton = true;
 let flagMode = false;
+let isShifting = false;
 
 let isFloorsMode = false;
 let currentFloor = 0;
@@ -41,6 +42,7 @@ document.addEventListener('keydown', (event) => {
     if (!flagMode && event.shiftKey) {
         toggleButton.classList.replace('button_toggle', 'button_toggle_active')
         flagMode = true;
+        isShifting = true;
     }
     if (event.key == "r") {
         resetGame();
@@ -51,6 +53,7 @@ document.addEventListener('keyup', (event) => {
     if (flagMode && !event.shiftKey) {
         toggleButton.classList.replace('button_toggle_active', 'button_toggle')
         flagMode = false;
+        isShifting = false;
     }
 })
 
@@ -623,6 +626,12 @@ function toggleCustomLayout() {
         }
         customLayout = true;
         toggleButton.classList.add('toggle_on')
+    }
+
+    if (isShifting) {
+        let currentUrl = window.location.origin + window.location.pathname.replace('index.html', '');
+        window.location.assign(currentUrl + 'editor.html')
+        return;
     }
 }
 
