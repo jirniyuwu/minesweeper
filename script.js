@@ -28,6 +28,7 @@ let isFirstClick = true;
 let canClickButton = true;
 let flagMode = false;
 let isShifting = false;
+let isMidGame = false;
 
 let isFloorsMode = false;
 let currentFloor = 0;
@@ -58,6 +59,13 @@ document.addEventListener('keyup', (event) => {
 })
 
 function int(num) {return parseInt(num, 10)}
+function randInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+function bombRatio() {
+    return (rows*columns-wallTiles.length)/bombNum
+}
+
 function getButtonID(x, y) {
     let id = y*columns+x;
     return !wallTiles.includes(id) && x < columns && y < rows && x >= 0 && y >= 0 
@@ -89,6 +97,7 @@ async function resetGame() {
     setHearts();
     setCoins();
     canClickButton = true;
+    toggleMidGame(false);
 
     document.documentElement.style.setProperty('--is-active', 1)
     generateField(row, column);
@@ -113,6 +122,9 @@ async function generateField(row, column) {
     pickedPickups = [];
     flags = [];
     coinTiles = [];
+    hearts = [];
+    eyes = [];
+    keys = [];
     resistedBombs = 0;
     isFirstClick = true;
 
@@ -144,6 +156,10 @@ async function generateField(row, column) {
             }
         }
         bombs.filter(value => {!wallTiles.includes(value)})
+
+        document.getElementById('bombs').value = bombNum;
+        document.getElementById('row').value = rows;
+        document.getElementById('column').value = columns;
     } else {
         while (bombs.length < bombNum) {
             let bombId = Math.floor(Math.random() * rows * columns);
@@ -201,7 +217,7 @@ function generateHearts() {
         return;
     }
     hearts = [];
-    max = bombNum/10 + Math.floor(Math.random() * 2 - 2)
+    max = bombNum/10 + randInt(0, 2)
     while (hearts.length < max && excludeForPickupGeneration.length + hearts.length < rows*columns) {
         let heartId = Math.floor(Math.random() * rows * columns);
         if (!hearts.includes(heartId) && !excludeForPickupGeneration.includes(heartId)) {
@@ -212,7 +228,7 @@ function generateHearts() {
 }
 function generateEyes() {
     eyes = [];
-    max = bombNum/30 + Math.floor(Math.random() * 5 - 4)
+    max = bombNum/30 + randInt(-3, 1)
     while (eyes.length < max && excludeForPickupGeneration.length + eyes.length < rows*columns) {
         let eyeId = Math.floor(Math.random() * rows * columns);
         if (!eyes.includes(eyeId) && !excludeForPickupGeneration.includes(eyeId)) {
@@ -223,7 +239,7 @@ function generateEyes() {
 }
 function generateCoins() {
     coinTiles = [];
-    max = bombNum/5 + Math.floor(Math.random() * 7 - 2)
+    max = bombNum/5 + randInt(-2, 4)
     while (coinTiles.length < max && excludeForPickupGeneration.length + coinTiles.length < rows*columns) {
         let coinId = Math.floor(Math.random() * rows * columns);
         if (!coinTiles.includes(coinId) && !excludeForPickupGeneration.includes(coinId)) {
@@ -269,6 +285,9 @@ function getBombNeighbors(id) {
 
 function clickButton(id, isClick) {
     let button = document.querySelector('#button' + id);
+    if (!isMidGame) {
+        toggleMidGame(true);
+    } 
     if (isFirstClick && !isClick) {
         return;
     }
@@ -396,6 +415,7 @@ function clickButton(id, isClick) {
 function lose() {
     document.documentElement.style.setProperty('--is-active', 0);
     canClickButton = false;
+    toggleMidGame(false);
     document.querySelector('#endscreen').classList.add('screen_lose');
     revealTiles();
 }
@@ -421,16 +441,25 @@ function win() {
     
         currentFloor++;
         setFloor();
-        rows = Math.min(int(rows)+Math.floor(Math.random()*2+1), 17);
-        columns = Math.min(int(columns)+Math.floor(Math.random()*2+1), 28);
-        bombNum = Math.min(int(bombNum) + 
-            Math.floor(Math.sqrt(int(rows)+int(columns)))/2, (rows*columns-wallTiles.length)/4)
+
+        if (Math.random() <= 0.5) {
+            rows = Math.min(int(rows)+randInt(0, 2), 17);
+            columns = Math.min(int(columns)+1, 28);
+        } else {
+            rows = Math.min(int(rows)+1, 17);
+            columns = Math.min(int(columns)+randInt(0, 2), 28);
+        }
+
+        bombNum = Math.floor(Math.min(int(bombNum) + Math.sqrt(int(rows)+int(columns)), 
+            (rows*columns-wallTiles.length)/4));
+        
         generateField(int(rows), int(columns))
         return;
     }
 
     document.documentElement.style.setProperty('--is-active', 0);
-    canClickButton = false;   
+    canClickButton = false;  
+    toggleMidGame(false);
     document.querySelector('#endscreen').classList.add('screen_win');
     revealTiles();
 }
@@ -528,6 +557,15 @@ function setFloor() {
     }
 }
 
+function toggleMidGame(boolean) {
+    isMidGame = boolean;
+    if (boolean && isFloorsMode) {
+        document.getElementById('heart').classList.add('disabledinput');
+    } else {
+        document.getElementById('heart').classList.remove('disabledinput');
+    }
+}
+
 async function loadJSON(path) {
   try {
     const response = await fetch(path); 
@@ -596,26 +634,50 @@ function toggleFloors() {
     if (isFloorsMode) {
         isFloorsMode = false;
         toggleButton.classList.remove('toggle_on');
+        if (isMidGame) {
+            resetGame();
+        }
+
+        document.getElementById('row').classList.remove('disabledinput');
+        document.getElementById('column').classList.remove('disabledinput');
+        document.getElementById('bombs').classList.remove('disabledinput');
     } else {
         isFloorsMode = true;
         toggleButton.classList.add('toggle_on')
+        if (isMidGame) {
+            resetGame();
+        }
+        
+        document.getElementById('row').classList.add('disabledinput');
+        document.getElementById('column').classList.add('disabledinput');
+        document.getElementById('bombs').classList.add('disabledinput');
+        
+        document.querySelector('#layout_toggle').classList.remove('toggle_on');
+        customLayout = false;
     }
 }
 
 function togglePickups() {
+    if (isMidGame) {
+        return;
+    } else if (isFirstClick) {
+        resetGame();
+    }
     let toggleButton = document.querySelector('#pickups_toggle');
     if (allowPickups) {
         allowPickups = false;
         toggleButton.classList.remove('toggle_on');
+        setCoins();
     } else {
         allowPickups = true;
         toggleButton.classList.add('toggle_on')
+        setCoins();
     }
 }
 
 function toggleCustomLayout() {
     let toggleButton = document.querySelector('#layout_toggle');
-    if (customLayout) {
+    if (customLayout || isFloorsMode) {
         customLayout = false;
         toggleButton.classList.remove('toggle_on');
     } else {

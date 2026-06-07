@@ -220,9 +220,25 @@ input {
     display: inline;
 }
 .rowsinput {background-image: url(sprites/textbox_rows.png)}
+.rowsinput.disabledinput {
+    background-image: url(sprites/textbox_rows_disabled.png);
+    pointer-events: none;
+}
 .columnsinput {background-image: url(sprites/textbox_columns.png)}
+.columnsinput.disabledinput {
+    background-image: url(sprites/textbox_columns_disabled.png);
+    pointer-events: none;
+}
 .bombsinput {background-image: url(sprites/textbox_bombs.png)}
+.bombsinput.disabledinput {
+    background-image: url(sprites/textbox_bombs_disabled.png);
+    pointer-events: none;
+}
 .heartsinput {background-image: url(sprites/textbox_hearts.png)}
+.heartsinput.disabledinput {
+    background-image: url(sprites/textbox_hearts_disabled.png);
+    pointer-events: none;
+}
 
 #endscreen {
     border: none;
