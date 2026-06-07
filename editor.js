@@ -75,20 +75,20 @@ function editButton(button) {
     let id = int(button.id.replace('button', ''))
     switch (selector) {
         case 'blank':
-            wallTiles.filter(value => value != id);
-            lockedTiles.filter(value => value != id);
+            wallTiles = wallTiles.filter(value => value != id);
+            lockedTiles = lockedTiles.filter(value => value != id);
             button.classList.remove('ed_wall_button', 'ed_locked_button');
             button.classList.add('ed_button');
             break;
         case 'locked':
             if (!lockedTiles.includes(id)) {lockedTiles.push(id)}
-            wallTiles.filter(value => value != id);
+            wallTiles = wallTiles.filter(value => value != id);
             button.classList.add('ed_locked_button');
             button.classList.remove('ed_wall_button', 'ed_button');
             break;
         case 'wall':
             if (!wallTiles.includes(id)) {wallTiles.push(id)}
-            lockedTiles.filter(value => value != id);
+            lockedTiles = lockedTiles.filter(value => value != id);
             button.classList.add('ed_wall_button');
             button.classList.remove('ed_locked_button', 'ed_button');
             break;
