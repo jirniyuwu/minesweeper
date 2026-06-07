@@ -230,6 +230,21 @@ function generateCoins() {
     excludeForPickupGeneration = [...excludeForPickupGeneration, ...coinTiles]
 }
 
+function getPickupAt(id) {
+    let pickups = [];
+    if (hearts.includes(id)) {pickups.push('heart')}
+    if (eyes.includes(id)) {pickups.push('eye')}
+    if (coinTiles.includes(id)) {pickups.push('coin')}
+    if (keys.includes(id)) {pickups.push('key')}
+    if (bombs.includes(id)) {pickups.push('bomb')}
+    
+    if (pickups.length > 1) {
+        throw new Error('too many pickups at id ' + id)
+    } else {
+        return pickups.length == 1 ? pickups[0] : null;
+    }
+}
+
 function getNeighbors(id) {
     let x = getButtonX(id);
     let y = getButtonY(id);
@@ -262,50 +277,56 @@ function clickButton(id, isClick) {
         }
         isFirstClick = false;
         if (isClick && pickedPickups.includes(id)) {
-            if (hearts.includes(id) && currentLife < maxLife) {
-                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
-                currentLife++;
-                setHearts();
-                hearts = hearts.filter(value => value != id);
-                pickedPickups = pickedPickups.filter(value => value != id);
-                return;
-            }
-            if (eyes.includes(id)) {
-                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
-                let exclude = [...bombs, ...wallTiles, ...lockedTiles, ...flags]
-                let reveal = false;
-                let attempts = 0;
-                while (!reveal && attempts < 256) {
-                    let randomId = Math.floor(Math.random() * rows * columns);
-                    if (!exclude.includes(randomId) && !isButtonPressed(randomId)) {
-                        clickButton(randomId, false)
-                        reveal = true;
+            switch (getPickupAt(id)) {
+                case 'heart':
+                    if (currentLife < maxLife) {
+                        button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
+                        currentLife++;
+                        setHearts();
+                        hearts = hearts.filter(value => value != id);
+                        pickedPickups = pickedPickups.filter(value => value != id);
+                        return;
                     }
-                    attempts++;
-                }
-                eyes = eyes.filter(value => value != id);
-                pickedPickups = pickedPickups.filter(value => value != id);
-                return;
-            }
-            if (keys.includes(id)) {
-                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
-                lockedTiles.forEach(lockId => {
-                    let lock = document.querySelector('#button' + lockId);
-                    lock.classList.replace("locked_button", "button")
-                    lock.classList.replace("locked_button_flagged", "button_flagged")
-                });
-                lockedTiles = [];
-                keys = [];
-                pickedPickups = pickedPickups.filter(value => value != id);
-                return;
-            }
-            if (coinTiles.includes(id)) {
-                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
-                coins++;
-                setCoins();
-                coinTiles = coinTiles.filter(value => value != id);
-                pickedPickups = pickedPickups.filter(value => value != id);
-                return;
+                    break;
+                case 'eye':
+                    button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
+                    let exclude = [...bombs, ...wallTiles, ...lockedTiles, ...flags]
+                    let reveal = false;
+                    let attempts = 0;
+                    while (!reveal && attempts < 256) {
+                        let randomId = Math.floor(Math.random() * rows * columns);
+                        if (!exclude.includes(randomId) && !isButtonPressed(randomId)) {
+                            clickButton(randomId, false)
+                            reveal = true;
+                        }
+                        attempts++;
+                    }
+                    eyes = eyes.filter(value => value != id);
+                    pickedPickups = pickedPickups.filter(value => value != id);
+                    return;
+                    break;
+                case 'coin':
+                    button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
+                    coins++;
+                    setCoins();
+                    coinTiles = coinTiles.filter(value => value != id);
+                    pickedPickups = pickedPickups.filter(value => value != id);
+                    return;
+                    break;
+                case 'key':
+                    button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
+                    lockedTiles.forEach(lockId => {
+                        let lock = document.querySelector('#button' + lockId);
+                        lock.classList.replace("locked_button", "button")
+                        lock.classList.replace("locked_button_flagged", "button_flagged")
+                    });
+                    lockedTiles = [];
+                    keys = [];
+                    pickedPickups = pickedPickups.filter(value => value != id);
+                    return;
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -319,6 +340,7 @@ function clickButton(id, isClick) {
             flags = flags.filter(value => value != id);
         } else if (!flags.includes(id) && !lockedTiles.includes(id)) {
             button.classList.replace("button", "button_pressed");
+            button.classList.replace("button_low", "button_pressed");
 
             if (bombs.includes(id)) {
                 button.innerHTML = `<div class="bg bomb"></div>`
@@ -339,25 +361,27 @@ function clickButton(id, isClick) {
                 button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
             }
 
-            if (hearts.includes(id)) {
-                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
-                <div class="bg heartpickup"></div></div>`
-                pickedPickups.push(id);
-            }
-            if (eyes.includes(id)) {
-                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
-                <div class="bg eyepickup"></div></div>`
-                pickedPickups.push(id);
-            }
-            if (keys.includes(id)) {
-                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
-                <div class="bg keypickup"></div></div>`
-                pickedPickups.push(id);
-            }
-            if (coinTiles.includes(id)) {
-                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
-                <div class="bg coinpickup"></div></div>`
-                pickedPickups.push(id);
+            switch (getPickupAt(id)) {
+                case 'heart': 
+                    button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+                    <div class="bg heartpickup"></div></div>`
+                    pickedPickups.push(id);
+                    break;
+                case 'eye': 
+                    button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+                    <div class="bg eyepickup"></div></div>`
+                    pickedPickups.push(id);
+                    break;
+                case 'key': 
+                    button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+                    <div class="bg keypickup"></div></div>`
+                    pickedPickups.push(id);
+                    break;
+                case 'coin': 
+                    button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+                    <div class="bg coinpickup"></div></div>`
+                    pickedPickups.push(id);
+                    break;
             }
         }
         if (winCondition()) {
@@ -421,44 +445,46 @@ function revealTiles() {
             flags = flags.filter(id => id != value);
         }
     })
-    bombs.forEach(value => {
-        let button = document.querySelector('#button' + value);
-        if (!flags.includes(value)) {
-        button.classList.replace('button', 'button_low');
-        button.innerHTML = `<div class="bg bomb"></div>`};
-    });
-    coinTiles.forEach(value => {
-        let button = document.querySelector('#button' + value);
-        button.classList.replace('button', 'button_low');
-        button.innerHTML = button.classList.contains('button_pressed') ? 
-            `<div class="bg num${getBombNeighbors(value).length}">
-            <div class="bg coinpickup"></div></div>` : 
-            `<div class="bg coinpickup"></div>`;
-    });
-    hearts.forEach(value => {
-        let button = document.querySelector('#button' + value);
-        button.classList.replace('button', 'button_low');
-        button.innerHTML = button.classList.contains('button_pressed') ? 
-            `<div class="bg num${getBombNeighbors(value).length}">
-            <div class="bg heartpickup"></div></div>` : 
-            `<div class="bg heartpickup"></div>`;
-    });
-    eyes.forEach(value => {
-        let button = document.querySelector('#button' + value);
-        button.classList.replace('button', 'button_low');
-        button.innerHTML = button.classList.contains('button_pressed') ? 
-            `<div class="bg num${getBombNeighbors(value).length}">
-            <div class="bg eyepickup"></div></div>` : 
-            `<div class="bg eyepickup"></div>`;
-    });
-    keys.forEach(value => {
-        let button = document.querySelector('#button' + value);
-        button.classList.replace('button', 'button_low');
-        button.innerHTML = button.classList.contains('button_pressed') ? 
-            `<div class="bg num${getBombNeighbors(value).length}">
-            <div class="bg keypickup"></div></div>` : 
-            `<div class="bg keypickup"></div>`;
-    });
+    for (let i = 0; i < rows*columns; i++) {
+        let button = document.querySelector('#button' + i);
+        switch (getPickupAt(i)) {
+            case 'bomb':  
+                if (!flags.includes(i)) {
+                button.classList.replace('button', 'button_low');
+                button.innerHTML = `<div class="bg bomb"></div>`};
+                break;
+            case 'coin':
+                button.classList.replace('button', 'button_low');
+                button.innerHTML = button.classList.contains('button_pressed') ? 
+                    `<div class="bg num${getBombNeighbors(i).length}">
+                    <div class="bg coinpickup"></div></div>` : 
+                    `<div class="bg coinpickup"></div>`;
+                break;
+            case 'heart':
+                button.classList.replace('button', 'button_low');
+                button.innerHTML = button.classList.contains('button_pressed') ? 
+                    `<div class="bg num${getBombNeighbors(i).length}">
+                    <div class="bg heartpickup"></div></div>` : 
+                    `<div class="bg heartpickup"></div>`;
+                break;
+            case 'eye':
+                button.classList.replace('button', 'button_low');
+                button.innerHTML = button.classList.contains('button_pressed') ? 
+                    `<div class="bg num${getBombNeighbors(i).length}">
+                    <div class="bg eyepickup"></div></div>` : 
+                    `<div class="bg eyepickup"></div>`;
+                break;
+            case 'key':
+                button.classList.replace('button', 'button_low');
+                button.innerHTML = button.classList.contains('button_pressed') ? 
+                    `<div class="bg num${getBombNeighbors(i).length}">
+                    <div class="bg keypickup"></div></div>` : 
+                    `<div class="bg keypickup"></div>`;
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 function flagToggle() {
