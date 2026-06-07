@@ -58,6 +58,11 @@ document.addEventListener('keyup', (event) => {
         isShifting = false;
     }
 })
+document.addEventListener('animationend', (event) => {
+    if (event.animationName == 'explosion') {
+        event.target.remove();
+    }
+})
 
 function int(num) {return parseInt(num, 10)}
 function randInt(min, max) {
@@ -189,14 +194,14 @@ async function generateField(row, column) {
 function generateBombs(id) {
     bombs = [];
     megaBombs = [];
-    let exclude = [...getNeighbors(id), ...wallTiles];
+    let exclude = [...getNeighbors(id), ...wallTiles, id];
     if (bombNum > rows*columns - exclude.length - 1) {
         throw new Error("too many bombs")
     }
     if (isFloorsMode) {
         while (bombs.length < bombNum) {
             let bombId = Math.floor(Math.random() * rows * columns);
-            if (!bombs.includes(bombId)) {
+            if (!bombs.includes(bombId) && !exclude.includes(bombId)) {
                 bombs.push(bombId)
             }
         }
@@ -219,7 +224,7 @@ function generateBombs(id) {
     } else {
         while (bombs.length < bombNum) {
             let bombId = Math.floor(Math.random() * rows * columns);
-            if (!bombs.includes(bombId) && !wallTiles.includes(bombId)) {
+            if (!bombs.includes(bombId) && !wallTiles.includes(bombId) && !exclude.includes(bombId)) {
                 bombs.push(bombId)
             }
         }
@@ -374,7 +379,7 @@ function clickButton(id, isClick) {
             button.classList.replace("button_low", "button_pressed");
 
             if (bombs.includes(id)) {
-                button.innerHTML = `<div class="bg bomb"></div>`
+                button.innerHTML = `<div class="bg bomb"><div class="explosion"></div></div>`
                 clickedBombs.push(id);
                 resistedBombs++;
                 currentLife--;
@@ -384,7 +389,7 @@ function clickButton(id, isClick) {
                     lose();
                 }
             } else if (megaBombs.includes(id)) {
-                button.innerHTML = `<div class="bg megabomb"></div>`
+                button.innerHTML = `<div class="bg megabomb"><div class="explosion"></div></div>`
                 clickedBombs.push(id);
                 currentLife = 0;
                 setHearts();
@@ -489,7 +494,7 @@ function lose() {
     canClickButton = false;
     toggleMidGame(false);
     document.querySelector('#endscreen').classList.add('screen_lose');
-    revealTiles();
+    revealTiles(true);
 }
 
 function win() {
@@ -533,14 +538,14 @@ function win() {
     canClickButton = false;  
     toggleMidGame(false);
     document.querySelector('#endscreen').classList.add('screen_win');
-    revealTiles();
+    revealTiles(false);
 }
 
 function winCondition() {
     return document.querySelectorAll('.button_pressed').length == rows*columns - bombs.length - wallTiles.length + resistedBombs;
 }
 
-function revealTiles() {
+function revealTiles(explode) {
     flags.forEach(value => {
         let button = document.querySelector('#button' + value);
         if (!bombs.includes(value) && !megaBombs.includes(value)) {
@@ -555,12 +560,12 @@ function revealTiles() {
             case 'bomb':  
                 if (!flags.includes(i)) {
                 button.classList.replace('button', 'button_low');
-                button.innerHTML = `<div class="bg bomb"></div>`};
+                button.innerHTML = explode ? `<div class="bg bomb"><div class="explosion"></div></div>` : `<div class="bg bomb"></div>`};
                 break;
             case 'megabomb':  
                 if (!flags.includes(i)) {
                 button.classList.replace('button', 'button_low');
-                button.innerHTML = `<div class="bg megabomb"></div>`};
+                button.innerHTML = explode ? `<div class="bg megabomb"><div class="explosion"></div></div>` : `<div class="bg megabomb"></div>`};
                 break;
             case 'coin':
                 button.classList.replace('button', 'button_low');

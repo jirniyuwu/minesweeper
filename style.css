@@ -131,10 +131,12 @@ input {
 .bomb {
     background-image: url(sprites/bomb.png);
     pointer-events: none;
+    position: relative;
 }
 .megabomb {
     background-image: url(sprites/megabomb.png);
     pointer-events: none;
+    position: relative;
 }
 .heartpickup {
     background-image: url(sprites/heart_small.png);
@@ -258,10 +260,12 @@ input {
 .screen_win {
     display: block;
     background-image: url(sprites/victory.png);
+    z-index: 999;
 }
 .screen_lose {
     display: block;
     background-image: url(sprites/defeat.png);
+    z-index: 999;
 }
 
 #hearts {
@@ -307,24 +311,25 @@ input {
 }
 
 .explosion {
-    width: 80px;
-    height: 80px;
+    width: 120px;
+    height: 120px;
+    position: absolute;
+    left: 18px;
+    top: 18px;
     background-size: cover;
     background-image: url('sprites/explosion.png');
     background-repeat: no-repeat;
     background-position: 0 0;
     animation: explosion 0.5s steps(11);
     pointer-events: none;
-    z-index: 1;
     margin: -40px;
-    transform: translate(50%, -50%);
 }
 @keyframes explosion {
   from {
     background-position: 0px 0px;
   }
   to {
-    background-position: -880px 0px;
+    background-position: -1320px 0px;
   }
 }
 
@@ -356,7 +361,7 @@ input {
     top: calc(100% - 16px);
     opacity: 0;
     pointer-events: none;
-    z-index: 1;
+    z-index: 1000;
 }
 .dropdown.activedropdown > #settings + .menu {
     opacity: 1;
