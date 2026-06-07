@@ -24,6 +24,29 @@ document.addEventListener('keydown', (event) => {
     if (event.shiftKey) {
         isShifting = true;
     }
+
+    switch (event.key) {
+        case '1':
+            selector = 'blank';
+            document.getElementById('blank_button').checked = true;
+            document.getElementById('locked_button').checked = false;
+            document.getElementById('wall_button').checked = false;
+            break;
+        case '2':
+            selector = 'locked';
+            document.getElementById('blank_button').checked = false;
+            document.getElementById('locked_button').checked = true;
+            document.getElementById('wall_button').checked = false;
+            break;
+        case '3':
+            selector = 'wall';
+            document.getElementById('blank_button').checked = false;
+            document.getElementById('locked_button').checked = false;
+            document.getElementById('wall_button').checked = true;
+            break;
+        default:
+            break;
+    }
 }) 
 document.addEventListener('keyup', (event) => {
     if (!event.shiftKey) {
@@ -170,7 +193,7 @@ function exportButton(copy) {
 
 function exportAndPlay() {
     exportButton(false);
-    let redirect = window.location.origin + window.location.pathname.replace('editor.html', '');
+    let redirect = window.location.origin + window.location.pathname.replace('editor.html', '').replace('editor', '');
     window.location.assign(redirect + '?custom=true')
 }
 
