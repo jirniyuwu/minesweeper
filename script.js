@@ -16,6 +16,7 @@ let wallTiles = [];
 let lockedTiles = [];
 
 let bombs = [];
+let megaBombs = [];
 let bombNum;
 let resistedBombs = 0;
 let clickedBombs = [];
@@ -148,6 +149,7 @@ async function generateField(row, column) {
     document.querySelector('#field').innerHTML = fieldHtml;
 
     bombs = [];
+    megaBombs = [];
     if (isFloorsMode) {
         while (bombs.length < bombNum) {
             let bombId = Math.floor(Math.random() * rows * columns);
@@ -155,9 +157,20 @@ async function generateField(row, column) {
                 bombs.push(bombId)
             }
         }
-        bombs.filter(value => {!wallTiles.includes(value)})
+        bombs = bombs.filter(value => !wallTiles.includes(value))
 
-        document.getElementById('bombs').value = bombNum;
+        if (currentFloor >= 10) {
+            let megaBombNum = Math.floor(Math.min(currentFloor/10, bombs.length/15));
+            while (megaBombs.length < megaBombNum) {
+                let bombId = Math.floor(Math.random() * rows * columns);
+                if (bombs.includes(bombId)) {
+                    megaBombs.push(bombId)
+                }
+            }
+            bombs = bombs.filter(value => !megaBombs.includes(value))
+        }
+
+        document.getElementById('bombs').value = bombs.length + megaBombs.length;
         document.getElementById('row').value = rows;
         document.getElementById('column').value = columns;
     } else {
@@ -175,14 +188,40 @@ async function generateField(row, column) {
 
 function generateBombs(id) {
     bombs = [];
+    megaBombs = [];
     let exclude = [...getNeighbors(id), ...wallTiles];
     if (bombNum > rows*columns - exclude.length - 1) {
         throw new Error("too many bombs")
     }
-    while (bombs.length < bombNum) {
-        let bombId = Math.floor(Math.random() * rows * columns);
-        if (!bombs.includes(bombId) && !exclude.includes(bombId) && bombId != id) {
-            bombs.push(bombId)
+    if (isFloorsMode) {
+        while (bombs.length < bombNum) {
+            let bombId = Math.floor(Math.random() * rows * columns);
+            if (!bombs.includes(bombId)) {
+                bombs.push(bombId)
+            }
+        }
+        bombs = bombs.filter(value => !wallTiles.includes(value))
+
+        if (currentFloor >= 10) {
+            let megaBombNum = Math.min(currentFloor/10, bombs.length/15);
+            while (megaBombs.length < megaBombNum) {
+                let bombId = Math.floor(Math.random() * rows * columns);
+                if (bombs.includes(bombId)) {
+                    megaBombs.push(bombId)
+                }
+            }
+            bombs = bombs.filter(value => !megaBombs.includes(value))
+        }
+
+        document.getElementById('bombs').value = bombs.length + megaBombs.length;
+        document.getElementById('row').value = rows;
+        document.getElementById('column').value = columns;
+    } else {
+        while (bombs.length < bombNum) {
+            let bombId = Math.floor(Math.random() * rows * columns);
+            if (!bombs.includes(bombId) && !wallTiles.includes(bombId)) {
+                bombs.push(bombId)
+            }
         }
     }
     if (allowPickups) {
@@ -190,7 +229,7 @@ function generateBombs(id) {
     }
 }
 function generatePickups() {
-    excludeForPickupGeneration = [...bombs, ...wallTiles];
+    excludeForPickupGeneration = [...bombs, ...megaBombs, ...wallTiles];
     generateKey();
     generateHearts();
     generateEyes();
@@ -256,6 +295,7 @@ function getPickupAt(id) {
     if (coinTiles.includes(id)) {pickups.push('coin')}
     if (keys.includes(id)) {pickups.push('key')}
     if (bombs.includes(id)) {pickups.push('bomb')}
+    if (megaBombs.includes(id)) {pickups.push('megabomb')}
     
     if (pickups.length > 1) {
         throw new Error('too many pickups at id ' + id)
@@ -280,7 +320,7 @@ function getNeighbors(id) {
 }
 
 function getBombNeighbors(id) {
-    return getNeighbors(id).filter(value => bombs.includes(value))
+    return getNeighbors(id).filter(value => bombs.includes(value) || megaBombs.includes(value))
 }
 
 function clickButton(id, isClick) {
@@ -343,6 +383,12 @@ function clickButton(id, isClick) {
                     resistedBombs--;
                     lose();
                 }
+            } else if (megaBombs.includes(id)) {
+                button.innerHTML = `<div class="bg megabomb"></div>`
+                clickedBombs.push(id);
+                currentLife = 0;
+                setHearts();
+                lose();
             } else if (nearBombs == 0) {
                 let neighbors = getNeighbors(id);
                 neighbors.forEach(value => {if (!isButtonPressed(value)) {
@@ -497,7 +543,7 @@ function winCondition() {
 function revealTiles() {
     flags.forEach(value => {
         let button = document.querySelector('#button' + value);
-        if (!bombs.includes(value)) {
+        if (!bombs.includes(value) && !megaBombs.includes(value)) {
             button.classList.replace('button_flagged', 'button');
             button.classList.replace('locked_button_flagged', 'locked_button');
             flags = flags.filter(id => id != value);
@@ -510,6 +556,11 @@ function revealTiles() {
                 if (!flags.includes(i)) {
                 button.classList.replace('button', 'button_low');
                 button.innerHTML = `<div class="bg bomb"></div>`};
+                break;
+            case 'megabomb':  
+                if (!flags.includes(i)) {
+                button.classList.replace('button', 'button_low');
+                button.innerHTML = `<div class="bg megabomb"></div>`};
                 break;
             case 'coin':
                 button.classList.replace('button', 'button_low');

@@ -132,6 +132,10 @@ input {
     background-image: url(sprites/bomb.png);
     pointer-events: none;
 }
+.megabomb {
+    background-image: url(sprites/megabomb.png);
+    pointer-events: none;
+}
 .heartpickup {
     background-image: url(sprites/heart_small.png);
     cursor: if(style(--is-active: 1): pointer; else: default);
