@@ -217,7 +217,7 @@ function generateHearts() {
         return;
     }
     hearts = [];
-    max = bombNum/10 + randInt(0, 2)
+    max = Math.floor(bombNum/10 + randInt(-1, 2))
     while (hearts.length < max && excludeForPickupGeneration.length + hearts.length < rows*columns) {
         let heartId = Math.floor(Math.random() * rows * columns);
         if (!hearts.includes(heartId) && !excludeForPickupGeneration.includes(heartId)) {
@@ -228,7 +228,7 @@ function generateHearts() {
 }
 function generateEyes() {
     eyes = [];
-    max = bombNum/30 + randInt(-3, 1)
+    max = Math.floor(bombNum/30 + randInt(-3, 1))
     while (eyes.length < max && excludeForPickupGeneration.length + eyes.length < rows*columns) {
         let eyeId = Math.floor(Math.random() * rows * columns);
         if (!eyes.includes(eyeId) && !excludeForPickupGeneration.includes(eyeId)) {
@@ -239,7 +239,7 @@ function generateEyes() {
 }
 function generateCoins() {
     coinTiles = [];
-    max = bombNum/5 + randInt(-2, 4)
+    max = Math.floor(bombNum/5 + randInt(-2, 4))
     while (coinTiles.length < max && excludeForPickupGeneration.length + coinTiles.length < rows*columns) {
         let coinId = Math.floor(Math.random() * rows * columns);
         if (!coinTiles.includes(coinId) && !excludeForPickupGeneration.includes(coinId)) {
@@ -301,50 +301,19 @@ function clickButton(id, isClick) {
         if (isClick && pickedPickups.includes(id)) {
             switch (getPickupAt(id)) {
                 case 'heart':
-                    if (currentLife < maxLife) {
-                        button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
-                        currentLife++;
-                        setHearts();
-                        hearts = hearts.filter(value => value != id);
-                        pickedPickups = pickedPickups.filter(value => value != id);
-                        return;
-                    }
+                    triggerHeartPickup(id, button);
+                    return;
                     break;
                 case 'eye':
-                    button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
-                    let exclude = [...bombs, ...wallTiles, ...lockedTiles, ...flags]
-                    let reveal = false;
-                    let attempts = 0;
-                    while (!reveal && attempts < 256) {
-                        let randomId = Math.floor(Math.random() * rows * columns);
-                        if (!exclude.includes(randomId) && !isButtonPressed(randomId)) {
-                            clickButton(randomId, false)
-                            reveal = true;
-                        }
-                        attempts++;
-                    }
-                    eyes = eyes.filter(value => value != id);
-                    pickedPickups = pickedPickups.filter(value => value != id);
+                    triggerEyePickup(id, button);
                     return;
                     break;
                 case 'coin':
-                    button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
-                    coins++;
-                    setCoins();
-                    coinTiles = coinTiles.filter(value => value != id);
-                    pickedPickups = pickedPickups.filter(value => value != id);
+                    triggerCoinPickup(id, button);
                     return;
                     break;
                 case 'key':
-                    button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
-                    lockedTiles.forEach(lockId => {
-                        let lock = document.querySelector('#button' + lockId);
-                        lock.classList.replace("locked_button", "button")
-                        lock.classList.replace("locked_button_flagged", "button_flagged")
-                    });
-                    lockedTiles = [];
-                    keys = [];
-                    pickedPickups = pickedPickups.filter(value => value != id);
+                    triggerKeyPickup(id, button);
                     return;
                     break;
                 default:
@@ -352,11 +321,11 @@ function clickButton(id, isClick) {
             }
         }
 
-        if (flagMode && !flags.includes(id)) {
+        if (flagMode && !flags.includes(id) && isClick) {
             button.classList.replace("button", "button_flagged");
             button.classList.replace("locked_button", "locked_button_flagged");
             flags.push(id);
-        } else if (flagMode && flags.includes(id)) {
+        } else if (flagMode && flags.includes(id) && isClick) {
             button.classList.replace("button_flagged", "button");
             button.classList.replace("locked_button_flagged", "locked_button");
             flags = flags.filter(value => value != id);
@@ -406,10 +375,67 @@ function clickButton(id, isClick) {
                     break;
             }
         }
-        if (winCondition()) {
+        if (winCondition() && document.documentElement.style.getPropertyValue('--is-active') == 1) {
             win();
         }
     }   
+}
+
+function triggerHeartPickup(id, button) {
+    if (currentLife < maxLife) {
+        if (button != null) {
+            button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
+        }
+        currentLife++;
+        setHearts();
+        hearts = hearts.filter(value => value != id);
+        pickedPickups = pickedPickups.filter(value => value != id);
+    }
+}
+function triggerEyePickup(id, button) {
+    let exclude = [...bombs, ...wallTiles, ...lockedTiles]
+    let reveal = false;
+    let attempts = 0;
+    while (!reveal && attempts < 256) {
+        let randomId = Math.floor(Math.random() * rows * columns);
+        if (!exclude.includes(randomId) && !isButtonPressed(randomId)) {
+            if (flags.includes(randomId)) {
+                let flag = document.querySelector('#button' + randomId);
+                flag.classList.replace("button_flagged", "button");
+                flags = flags.filter(value => value != randomId);
+            }
+            clickButton(randomId, false)
+            reveal = true;
+        }
+        attempts++;
+    }
+    if (!reveal) {return};
+    
+    if (button) {
+        button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
+    }
+    eyes = eyes.filter(value => value != id);
+    pickedPickups = pickedPickups.filter(value => value != id);
+}
+function triggerCoinPickup(id, button) {
+    if (button) {
+        button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
+    }
+    coins++;
+    setCoins();
+    coinTiles = coinTiles.filter(value => value != id);
+    pickedPickups = pickedPickups.filter(value => value != id);
+}
+function triggerKeyPickup(id, button) {
+    button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
+    lockedTiles.forEach(lockId => {
+        let lock = document.querySelector('#button' + lockId);
+        lock.classList.replace("locked_button", "button")
+        lock.classList.replace("locked_button_flagged", "button_flagged")
+    });
+    lockedTiles = [];
+    keys = [];
+    pickedPickups = pickedPickups.filter(value => value != id);
 }
 
 function lose() {
