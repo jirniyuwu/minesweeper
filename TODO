@@ -1,6 +1,6 @@
 
 Todo:
-  [] megabomb
+  [+] megabomb
   [] blank heart
   [+] void tiles
   [+] void tiles json parser
@@ -9,6 +9,7 @@ Todo:
   [] more walls json
   [+] editor mode
   [+] function getPickupAtId() and optimize pickups on click
+  [+] random event pickup
 
 Floors:
   [+] reset on win

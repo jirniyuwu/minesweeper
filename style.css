@@ -127,7 +127,10 @@ input {
 .num6 {background-image: url(sprites/num/6.png)}
 .num7 {background-image: url(sprites/num/7.png)}
 .num8 {background-image: url(sprites/num/8.png)}
-
+.bgblank {
+    pointer-events: none;
+    position: relative;
+}
 .bomb {
     background-image: url(sprites/bomb.png);
     pointer-events: none;
@@ -165,6 +168,25 @@ input {
 }
 .coinpickup:hover {
     background-image: if(style(--is-active: 1): url(sprites/coin_pickup_active.png); else: url(sprites/coin_pickup.png));
+}
+.randompickup {
+    cursor: if(style(--is-active: 1): pointer; else: default);
+    background-size: cover;
+    background-image: url('sprites/random.png');
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    animation: random 0.5s steps(6) infinite;
+}
+.randompickup:hover {
+    background-image: if(style(--is-active: 1): url(sprites/random_active.png); else: url(sprites/random.png));
+}
+@keyframes random {
+  from {
+    background-position: 0px 0px;
+  }
+  to {
+    background-position: -384px 0px;
+  }
 }
 
 .button_toggle {

@@ -5,11 +5,11 @@ let allowPickups = true;
 let pickedPickups = [];
 let excludeForPickupGeneration = []
 
-let flags = [];
 let hearts = [];
 let eyes = [];
 let keys = [];
 let coinTiles = [];
+let randomTiles = [];
 
 let customLayout = false;
 let wallTiles = [];
@@ -18,6 +18,7 @@ let lockedTiles = [];
 let bombs = [];
 let megaBombs = [];
 let bombNum;
+let flags = [];
 let resistedBombs = 0;
 let clickedBombs = [];
 
@@ -127,6 +128,7 @@ async function generateField(row, column) {
     clickedBombs = [];
     pickedPickups = [];
     flags = [];
+    randomTiles = [];
     coinTiles = [];
     hearts = [];
     eyes = [];
@@ -235,6 +237,7 @@ function generateBombs(id) {
 }
 function generatePickups() {
     excludeForPickupGeneration = [...bombs, ...megaBombs, ...wallTiles];
+    generateRandoms();
     generateKey();
     generateHearts();
     generateEyes();
@@ -243,6 +246,17 @@ function generatePickups() {
     pickedPickups = []
 }
 
+function generateRandoms() {
+    randomTiles = [];
+    max = isFloorsMode ? Math.floor(bombNum/30 + randInt(0, currentFloor)/6 + randInt(-3, 2)) : Math.floor(bombNum/30 + randInt(-2, 1))
+    while (randomTiles.length < max && excludeForPickupGeneration.length + randomTiles.length < rows*columns) {
+        let randomId = Math.floor(Math.random() * rows * columns);
+        if (!randomTiles.includes(randomId) && !excludeForPickupGeneration.includes(randomId)) {
+            randomTiles.push(randomId)
+        }
+    }
+    excludeForPickupGeneration = [...excludeForPickupGeneration, ...randomTiles]
+}
 function generateKey() {
     keys = [];
     if (lockedTiles.length > 0) {
@@ -295,6 +309,7 @@ function generateCoins() {
 
 function getPickupAt(id) {
     let pickups = [];
+    if (randomTiles.includes(id)) {pickups.push('random')}
     if (hearts.includes(id)) {pickups.push('heart')}
     if (eyes.includes(id)) {pickups.push('eye')}
     if (coinTiles.includes(id)) {pickups.push('coin')}
@@ -361,6 +376,10 @@ function clickButton(id, isClick) {
                     triggerKeyPickup(id, button);
                     return;
                     break;
+                case 'random':
+                    triggerRandomPickup(id, button);
+                    return;
+                    break;
                 default:
                     break;
             }
@@ -424,6 +443,13 @@ function clickButton(id, isClick) {
                     <div class="bg coinpickup"></div></div>`
                     pickedPickups.push(id);
                     break;
+                case 'random': 
+                    button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+                    <div class="bg randompickup"></div></div>`
+                    pickedPickups.push(id);
+                    break;
+                default:
+                    break;
             }
         }
         if (winCondition() && document.documentElement.style.getPropertyValue('--is-active') == 1) {
@@ -441,6 +467,9 @@ function triggerHeartPickup(id, button) {
         setHearts();
         hearts = hearts.filter(value => value != id);
         pickedPickups = pickedPickups.filter(value => value != id);
+        return true;
+    } else {
+        return false;
     }
 }
 function triggerEyePickup(id, button) {
@@ -460,13 +489,14 @@ function triggerEyePickup(id, button) {
         }
         attempts++;
     }
-    if (!reveal) {return};
+    if (!reveal) {return false};
     
     if (button) {
         button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
     }
     eyes = eyes.filter(value => value != id);
     pickedPickups = pickedPickups.filter(value => value != id);
+    return true;
 }
 function triggerCoinPickup(id, button) {
     if (button) {
@@ -476,6 +506,7 @@ function triggerCoinPickup(id, button) {
     setCoins();
     coinTiles = coinTiles.filter(value => value != id);
     pickedPickups = pickedPickups.filter(value => value != id);
+    return true;
 }
 function triggerKeyPickup(id, button) {
     button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
@@ -487,6 +518,50 @@ function triggerKeyPickup(id, button) {
     lockedTiles = [];
     keys = [];
     pickedPickups = pickedPickups.filter(value => value != id);
+    return true;
+}
+function triggerRandomPickup(id, button) {
+    let randomSelect = randInt(0, 3);
+    let isTriggered = false;
+    let isBomb = false;
+    switch (randomSelect) {
+        case 0:
+            isTriggered = triggerHeartPickup();
+            break;
+        case 1:
+            isTriggered = triggerEyePickup();
+            break;
+        case 2:
+            isTriggered = true;
+            coins += randInt(1, 4);
+            setCoins();
+            break;
+        case 3:
+            isTriggered = true;
+            isBomb = true;
+            currentLife--;
+            setHearts();
+            if (currentLife == 0) {
+                resistedBombs--;
+                lose();
+            }
+            break;
+        default:
+            isTriggered = false;
+            break;
+    }
+    
+    if (isTriggered) {
+        button.innerHTML = isBomb 
+            ? `<div class="bg num${getBombNeighbors(id).length} bgblank">
+            <div class="explosion"></div></div>` 
+            : `<div class="bg num${getBombNeighbors(id).length}"></div>`
+        randomTiles = randomTiles.filter(value => value != id);
+        pickedPickups = pickedPickups.filter(value => value != id);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 function lose() {
@@ -594,6 +669,13 @@ function revealTiles(explode) {
                     `<div class="bg num${getBombNeighbors(i).length}">
                     <div class="bg keypickup"></div></div>` : 
                     `<div class="bg keypickup"></div>`;
+                break;
+            case 'random':
+                button.classList.replace('button', 'button_low');
+                button.innerHTML = button.classList.contains('button_pressed') ? 
+                    `<div class="bg num${getBombNeighbors(i).length}">
+                    <div class="bg randompickup"></div></div>` : 
+                    `<div class="bg randompickup"></div>`;
                 break;
             default:
                 break;
