@@ -148,6 +148,13 @@ input {
 .heartpickup:hover {
     background-image: if(style(--is-active: 1): url(sprites/heart_small_active.png); else: url(sprites/heart_small.png));
 }
+.blankheartpickup {
+    background-image: url(sprites/heart_blank_small.png);
+    cursor: if(style(--is-active: 1): pointer; else: default);
+}
+.blankheartpickup:hover {
+    background-image: if(style(--is-active: 1): url(sprites/heart_blank_small_active.png); else: url(sprites/heart_blank_small.png));
+}
 .eyepickup {
     background-image: url(sprites/eye.png);
     cursor: if(style(--is-active: 1): pointer; else: default);
@@ -313,6 +320,14 @@ input {
     background-size: 100% 100%;
     background-repeat: no-repeat;
 }
+.heart_blank {
+    width: 64px;
+    height: 64px;
+    margin: 0px 0px 0px -4px;
+    background-image: url(sprites/heart_blank.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+}
 
 #coinamount {
     border: none;
@@ -333,25 +348,25 @@ input {
 }
 
 .explosion {
-    width: 120px;
-    height: 120px;
+    width: 160px;
+    height: 160px;
     position: absolute;
-    left: 18px;
-    top: 18px;
+    left: 24px;
+    top: 24px;
     background-size: cover;
     background-image: url('sprites/explosion.png');
     background-repeat: no-repeat;
     background-position: 0 0;
     animation: explosion 0.5s steps(11);
     pointer-events: none;
-    margin: -40px;
+    margin: -64px;
 }
 @keyframes explosion {
   from {
     background-position: 0px 0px;
   }
   to {
-    background-position: -1320px 0px;
+    background-position: -1760px 0px;
   }
 }
 

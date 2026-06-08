@@ -6,6 +6,7 @@ let pickedPickups = [];
 let excludeForPickupGeneration = []
 
 let hearts = [];
+let blankHearts = [];
 let eyes = [];
 let keys = [];
 let coinTiles = [];
@@ -131,6 +132,7 @@ async function generateField(row, column) {
     randomTiles = [];
     coinTiles = [];
     hearts = [];
+    blankHearts = [];
     eyes = [];
     keys = [];
     resistedBombs = 0;
@@ -275,14 +277,27 @@ function generateHearts() {
         return;
     }
     hearts = [];
-    max = Math.floor(bombNum/10 + randInt(-1, 2))
+    blankHearts = []
+    max = Math.floor(bombNum/10 + randInt(-2, 1))
     while (hearts.length < max && excludeForPickupGeneration.length + hearts.length < rows*columns) {
         let heartId = Math.floor(Math.random() * rows * columns);
         if (!hearts.includes(heartId) && !excludeForPickupGeneration.includes(heartId)) {
             hearts.push(heartId)
         }
     }
-    excludeForPickupGeneration = [...excludeForPickupGeneration, ...hearts]
+    
+    if (currentFloor >= 10) {
+        let blankHeartNum = Math.floor(Math.min(currentFloor/7, hearts.length/5 + 2, hearts.length));
+        while (blankHearts.length < blankHeartNum) {
+            let heartId = Math.floor(Math.random() * rows * columns);
+            if (hearts.includes(heartId)) {
+                blankHearts.push(heartId)
+            }
+        }
+        hearts = hearts.filter(value => !blankHearts.includes(value))
+    }
+
+    excludeForPickupGeneration = [...excludeForPickupGeneration, ...hearts, ...blankHearts]
 }
 function generateEyes() {
     eyes = [];
@@ -311,6 +326,7 @@ function getPickupAt(id) {
     let pickups = [];
     if (randomTiles.includes(id)) {pickups.push('random')}
     if (hearts.includes(id)) {pickups.push('heart')}
+    if (blankHearts.includes(id)) {pickups.push('blankheart')}
     if (eyes.includes(id)) {pickups.push('eye')}
     if (coinTiles.includes(id)) {pickups.push('coin')}
     if (keys.includes(id)) {pickups.push('key')}
@@ -362,6 +378,10 @@ function clickButton(id, isClick) {
             switch (getPickupAt(id)) {
                 case 'heart':
                     triggerHeartPickup(id, button);
+                    return;
+                    break;
+                case 'blankheart':
+                    triggerBlankHeartPickup(id, button);
                     return;
                     break;
                 case 'eye':
@@ -428,6 +448,11 @@ function clickButton(id, isClick) {
                     <div class="bg heartpickup"></div></div>`
                     pickedPickups.push(id);
                     break;
+                case 'blankheart': 
+                    button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+                    <div class="bg blankheartpickup"></div></div>`
+                    pickedPickups.push(id);
+                    break;
                 case 'eye': 
                     button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
                     <div class="bg eyepickup"></div></div>`
@@ -466,6 +491,20 @@ function triggerHeartPickup(id, button) {
         currentLife++;
         setHearts();
         hearts = hearts.filter(value => value != id);
+        pickedPickups = pickedPickups.filter(value => value != id);
+        return true;
+    } else {
+        return false;
+    }
+}
+function triggerBlankHeartPickup(id, button) {
+    if (currentLife == maxLife) {
+        if (button != null) {
+            button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"></div>`
+        }
+        currentLife++;
+        setHearts();
+        blankHearts = blankHearts.filter(value => value != id);
         pickedPickups = pickedPickups.filter(value => value != id);
         return true;
     } else {
@@ -521,34 +560,40 @@ function triggerKeyPickup(id, button) {
     return true;
 }
 function triggerRandomPickup(id, button) {
-    let randomSelect = randInt(0, 3);
     let isTriggered = false;
     let isBomb = false;
-    switch (randomSelect) {
-        case 0:
-            isTriggered = triggerHeartPickup();
-            break;
-        case 1:
-            isTriggered = triggerEyePickup();
-            break;
-        case 2:
-            isTriggered = true;
-            coins += randInt(1, 4);
-            setCoins();
-            break;
-        case 3:
-            isTriggered = true;
-            isBomb = true;
-            currentLife--;
-            setHearts();
-            if (currentLife == 0) {
-                resistedBombs--;
-                lose();
-            }
-            break;
-        default:
-            isTriggered = false;
-            break;
+
+    while (!isTriggered) {
+    let randomSelect = randInt(0, 3);
+        switch (randomSelect) {
+            case 0:
+                isTriggered = triggerHeartPickup();
+                if (!isTriggered) {
+                    isTriggered = triggerBlankHeartPickup();
+                }
+                break;
+            case 1:
+                isTriggered = triggerEyePickup();
+                break;
+            case 2:
+                isTriggered = true;
+                coins += randInt(1, 4);
+                setCoins();
+                break;
+            case 3:
+                isTriggered = true;
+                isBomb = true;
+                currentLife--;
+                setHearts();
+                if (currentLife == 0) {
+                    resistedBombs--;
+                    lose();
+                }
+                break;
+            default:
+                isTriggered = false;
+                break;
+        }
     }
     
     if (isTriggered) {
@@ -656,6 +701,13 @@ function revealTiles(explode) {
                     <div class="bg heartpickup"></div></div>` : 
                     `<div class="bg heartpickup"></div>`;
                 break;
+            case 'blankheart':
+                button.classList.replace('button', 'button_low');
+                button.innerHTML = button.classList.contains('button_pressed') ? 
+                    `<div class="bg num${getBombNeighbors(i).length}">
+                    <div class="bg blankheartpickup"></div></div>` : 
+                    `<div class="bg blankheartpickup"></div>`;
+                break;
             case 'eye':
                 button.classList.replace('button', 'button_low');
                 button.innerHTML = button.classList.contains('button_pressed') ? 
@@ -697,8 +749,14 @@ function flagToggle() {
 function setHearts() {
     let container = document.querySelector('#hearts')
     let html = '';
-    for (let i = 0; i < maxLife; i++) {
-        html += `<div id="life${i}" class="${i < currentLife ? 'heart' : 'heart_empty'}"></div>`
+    if (currentLife <= maxLife) {
+        for (let i = 0; i < maxLife; i++) {
+            html += `<div id="life${i}" class="${i < currentLife ? 'heart' : 'heart_empty'}"></div>`
+        }
+    } else {
+        for (let i = 0; i < currentLife; i++) {
+            html += `<div id="life${i}" class="${i < maxLife ? 'heart' : 'heart_blank'}"></div>`
+        }
     }
     container.innerHTML = html;
 }
