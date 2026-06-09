@@ -10,6 +10,7 @@ let blankHearts = [];
 let eyes = [];
 let keys = [];
 let coinTiles = [];
+let coinBags = [];
 let randomTiles = [];
 
 let customLayout = false;
@@ -131,6 +132,7 @@ async function generateField(row, column) {
     flags = [];
     randomTiles = [];
     coinTiles = [];
+    coinBags = [];
     hearts = [];
     blankHearts = [];
     eyes = [];
@@ -278,7 +280,7 @@ function generateHearts() {
     }
     hearts = [];
     blankHearts = []
-    max = Math.floor(bombNum/10 + randInt(-2, 1))
+    max = Math.floor(bombNum/15 + randInt(-2, 1))
     while (hearts.length < max && excludeForPickupGeneration.length + hearts.length < rows*columns) {
         let heartId = Math.floor(Math.random() * rows * columns);
         if (!hearts.includes(heartId) && !excludeForPickupGeneration.includes(heartId)) {
@@ -312,6 +314,7 @@ function generateEyes() {
 }
 function generateCoins() {
     coinTiles = [];
+    coinBags = [];
     max = Math.floor(bombNum/5 + randInt(-2, 4))
     while (coinTiles.length < max && excludeForPickupGeneration.length + coinTiles.length < rows*columns) {
         let coinId = Math.floor(Math.random() * rows * columns);
@@ -319,7 +322,19 @@ function generateCoins() {
             coinTiles.push(coinId)
         }
     }
-    excludeForPickupGeneration = [...excludeForPickupGeneration, ...coinTiles]
+
+    if (currentFloor >= 7) {
+        let bagNum = Math.floor(Math.min(currentFloor/9, coinTiles.length/7 + 1, coinTiles.length));
+        while (coinBags.length < bagNum) {
+            let bagId = Math.floor(Math.random() * rows * columns);
+            if (coinTiles.includes(bagId)) {
+                coinBags.push(bagId)
+            }
+        }
+        coinTiles = coinTiles.filter(value => !coinBags.includes(value))
+    }
+
+    excludeForPickupGeneration = [...excludeForPickupGeneration, ...coinTiles, ...coinBags]
 }
 
 function getPickupAt(id) {
@@ -329,12 +344,13 @@ function getPickupAt(id) {
     if (blankHearts.includes(id)) {pickups.push('blankheart')}
     if (eyes.includes(id)) {pickups.push('eye')}
     if (coinTiles.includes(id)) {pickups.push('coin')}
+    if (coinBags.includes(id)) {pickups.push('bag')}
     if (keys.includes(id)) {pickups.push('key')}
     if (bombs.includes(id)) {pickups.push('bomb')}
     if (megaBombs.includes(id)) {pickups.push('megabomb')}
     
     if (pickups.length > 1) {
-        throw new Error('too many pickups at id ' + id)
+        throw new Error('too many pickups at id ' + id + ": " + pickups)
     } else {
         return pickups.length == 1 ? pickups[0] : null;
     }
@@ -390,6 +406,10 @@ function clickButton(id, isClick) {
                     break;
                 case 'coin':
                     triggerCoinPickup(id, button);
+                    return;
+                    break;
+                case 'bag':
+                    triggerCoinBagPickup(id, button);
                     return;
                     break;
                 case 'key':
@@ -466,6 +486,11 @@ function clickButton(id, isClick) {
                 case 'coin': 
                     button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
                     <div class="bg coinpickup"></div></div>`
+                    pickedPickups.push(id);
+                    break;
+                case 'bag': 
+                    button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+                    <div class="bg bagpickup"></div></div>`
                     pickedPickups.push(id);
                     break;
                 case 'random': 
@@ -545,6 +570,38 @@ function triggerCoinPickup(id, button) {
     setCoins();
     coinTiles = coinTiles.filter(value => value != id);
     pickedPickups = pickedPickups.filter(value => value != id);
+    return true;
+}
+function triggerCoinBagPickup(id, button) {
+    if (id == null) {
+        return false;
+    }
+
+    let neighbors = getNeighbors(id).filter(value => getPickupAt(value) == null && !wallTiles.includes(value))
+    neighbors.forEach((neighborId) => {
+        if (Math.random() <= 0.3) {
+            let neighborButton = document.querySelector('#button' + neighborId);
+            if (isButtonPressed(neighborId)) {
+                neighborButton.innerHTML = `<div class="bg num${getBombNeighbors(neighborId).length}">
+                <div class="bg coinpickup"></div></div>`
+                pickedPickups.push(neighborId);
+            }
+            coinTiles.push(neighborId);
+        }
+    })
+    coinBags = coinBags.filter(value => value != id);
+    pickedPickups = pickedPickups.filter(value => value != id);
+    
+    if (button) {
+        button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"><div class="bg coinpickup"></div></div>`
+        coinTiles.push(id)
+        pickedPickups.push(id)
+    } else if (getPickupAt(id) == null) {
+        let currentButton = document.querySelector('#button' + id);
+        currentButton.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"><div class="bg coinpickup"></div></div>`
+        coinTiles.push(id)
+        pickedPickups.push(id)
+    }
     return true;
 }
 function triggerKeyPickup(id, button) {
@@ -693,6 +750,13 @@ function revealTiles(explode) {
                     `<div class="bg num${getBombNeighbors(i).length}">
                     <div class="bg coinpickup"></div></div>` : 
                     `<div class="bg coinpickup"></div>`;
+                break;
+            case 'bag':
+                button.classList.replace('button', 'button_low');
+                button.innerHTML = button.classList.contains('button_pressed') ? 
+                    `<div class="bg num${getBombNeighbors(i).length}">
+                    <div class="bg bagpickup"></div></div>` : 
+                    `<div class="bg bagpickup"></div>`;
                 break;
             case 'heart':
                 button.classList.replace('button', 'button_low');

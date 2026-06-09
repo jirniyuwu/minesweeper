@@ -176,6 +176,13 @@ input {
 .coinpickup:hover {
     background-image: if(style(--is-active: 1): url(sprites/gameplay/coin_pickup_active.png); else: url(sprites/gameplay/coin_pickup.png));
 }
+.bagpickup {
+    background-image: url(sprites/gameplay/coin_bag.png);
+    cursor: if(style(--is-active: 1): pointer; else: default);
+}
+.bagpickup:hover {
+    background-image: if(style(--is-active: 1): url(sprites/gameplay/coin_bag_active.png); else: url(sprites/gameplay/coin_bag.png));
+}
 .randompickup {
     cursor: if(style(--is-active: 1): pointer; else: default);
     background-size: cover;
