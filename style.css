@@ -31,36 +31,36 @@ input {
     width: 64px;
     height: 64px;
     margin: 0px 0px -12px 0px;
-    background-image: url(sprites/button.png);
+    background-image: url(sprites/gameplay/button.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     cursor: if(style(--is-active: 1): pointer; else: default);
 }
 .button:hover {
-    background-image: if(style(--is-active: 1): url(sprites/button_hold.png); else: url(sprites/button.png));
+    background-image: if(style(--is-active: 1): url(sprites/gameplay/button_hold.png); else: url(sprites/gameplay/button.png));
 }
 .button:active {
-    background-image: if(style(--is-active: 1): url(sprites/button_active.png); else: url(sprites/button.png));
+    background-image: if(style(--is-active: 1): url(sprites/gameplay/button_active.png); else: url(sprites/gameplay/button.png));
 }
 .button_low {
     border: none;
     width: 64px;
     height: 64px;
     margin: 0px 0px -12px 0px;
-    background-image: url(sprites/button_low.png);
+    background-image: url(sprites/gameplay/button_low.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     cursor: if(style(--is-active: 1): pointer; else: default);
 }
 .button_low:hover {
-    background-image: if(style(--is-active: 1): url(sprites/button_hold.png); else: url(sprites/button_low.png));
+    background-image: if(style(--is-active: 1): url(sprites/gameplay/button_hold.png); else: url(sprites/gameplay/button_low.png));
 }
 .button_pressed {
     border: none;
     width: 64px;
     height: 64px;
     margin: 0px 0px -12px 0px;
-    background-image: url(sprites/button_pressed.png);
+    background-image: url(sprites/gameplay/button_pressed.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
 }
@@ -69,46 +69,46 @@ input {
     width: 64px;
     height: 64px;
     margin: 0px 0px -12px 0px;
-    background-image: url(sprites/button_flagged.png);
+    background-image: url(sprites/gameplay/button_flagged.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     cursor: if(style(--is-active: 1): pointer; else: default);
 }
 .button_flagged:hover {
-    background-image: if(style(--is-active: 1): url(sprites/button_flagged_hold.png); else: url(sprites/button_flagged.png));
+    background-image: if(style(--is-active: 1): url(sprites/gameplay/button_flagged_hold.png); else: url(sprites/gameplay/button_flagged.png));
 }
 .locked_button {
     border: none;
     width: 64px;
     height: 64px;
     margin: 0px 0px -12px 0px;
-    background-image: url(sprites/button_locked.png);
+    background-image: url(sprites/gameplay/button_locked.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     cursor: default;
 }
 .locked_button:hover {
-    background-image: url(sprites/button_locked.png);
+    background-image: url(sprites/gameplay/button_locked.png);
 }
 .locked_button_flagged {
     border: none;
     width: 64px;
     height: 64px;
     margin: 0px 0px -12px 0px;
-    background-image: url(sprites/button_locked_flagged.png);
+    background-image: url(sprites/gameplay/button_locked_flagged.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     cursor: default;
 }
 .locked_button_flagged:hover {
-    background-image: url(sprites/button_locked_flagged.png);
+    background-image: url(sprites/gameplay/button_locked_flagged.png);
 }
 .wall_button {
     border: none;
     width: 64px;
     height: 64px;
     margin: 0px 0px -12px 0px;
-    background-image: url(sprites/wall.png);
+    background-image: url(sprites/gameplay/wall.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
 }
@@ -132,60 +132,60 @@ input {
     position: relative;
 }
 .bomb {
-    background-image: url(sprites/bomb.png);
+    background-image: url(sprites/gameplay/bomb.png);
     pointer-events: none;
     position: relative;
 }
 .megabomb {
-    background-image: url(sprites/megabomb.png);
+    background-image: url(sprites/gameplay/megabomb.png);
     pointer-events: none;
     position: relative;
 }
 .heartpickup {
-    background-image: url(sprites/heart_small.png);
+    background-image: url(sprites/gameplay/heart_small.png);
     cursor: if(style(--is-active: 1): pointer; else: default);
 }
 .heartpickup:hover {
-    background-image: if(style(--is-active: 1): url(sprites/heart_small_active.png); else: url(sprites/heart_small.png));
+    background-image: if(style(--is-active: 1): url(sprites/gameplay/heart_small_active.png); else: url(sprites/gameplay/heart_small.png));
 }
 .blankheartpickup {
-    background-image: url(sprites/heart_blank_small.png);
+    background-image: url(sprites/gameplay/heart_blank_small.png);
     cursor: if(style(--is-active: 1): pointer; else: default);
 }
 .blankheartpickup:hover {
-    background-image: if(style(--is-active: 1): url(sprites/heart_blank_small_active.png); else: url(sprites/heart_blank_small.png));
+    background-image: if(style(--is-active: 1): url(sprites/gameplay/heart_blank_small_active.png); else: url(sprites/gameplay/heart_blank_small.png));
 }
 .eyepickup {
-    background-image: url(sprites/eye.png);
+    background-image: url(sprites/gameplay/eye.png);
     cursor: if(style(--is-active: 1): pointer; else: default);
 }
 .eyepickup:hover {
-    background-image: if(style(--is-active: 1): url(sprites/eye_active.png); else: url(sprites/eye.png));
+    background-image: if(style(--is-active: 1): url(sprites/gameplay/eye_active.png); else: url(sprites/gameplay/eye.png));
 }
 .keypickup {
-    background-image: url(sprites/key.png);
+    background-image: url(sprites/gameplay/key.png);
     cursor: if(style(--is-active: 1): pointer; else: default);
 }
 .keypickup:hover {
-    background-image: if(style(--is-active: 1): url(sprites/key_active.png); else: url(sprites/key.png));
+    background-image: if(style(--is-active: 1): url(sprites/gameplay/key_active.png); else: url(sprites/gameplay/key.png));
 }
 .coinpickup {
-    background-image: url(sprites/coin_pickup.png);
+    background-image: url(sprites/gameplay/coin_pickup.png);
     cursor: if(style(--is-active: 1): pointer; else: default);
 }
 .coinpickup:hover {
-    background-image: if(style(--is-active: 1): url(sprites/coin_pickup_active.png); else: url(sprites/coin_pickup.png));
+    background-image: if(style(--is-active: 1): url(sprites/gameplay/coin_pickup_active.png); else: url(sprites/gameplay/coin_pickup.png));
 }
 .randompickup {
     cursor: if(style(--is-active: 1): pointer; else: default);
     background-size: cover;
-    background-image: url('sprites/random.png');
+    background-image: url(sprites/gameplay/random.png);
     background-repeat: no-repeat;
     background-position: 0 0;
     animation: random 0.5s steps(6) infinite;
 }
 .randompickup:hover {
-    background-image: if(style(--is-active: 1): url(sprites/random_active.png); else: url(sprites/random.png));
+    background-image: if(style(--is-active: 1): url(sprites/gameplay/random_active.png); else: url(sprites/gameplay/random.png));
 }
 @keyframes random {
   from {
@@ -201,43 +201,43 @@ input {
     width: 64px;
     height: 64px;
     margin: 0px 0px -12px 0px;
-    background-image: url(sprites/button_flagged.png);
+    background-image: url(sprites/gameplay/button_flagged.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     cursor: pointer;
 }
 .button_toggle:hover {
-    background-image: url(sprites/button_flagged_hold.png);
+    background-image: url(sprites/gameplay/button_flagged_hold.png);
 }
 .button_toggle_active {
     border: none;
     width: 64px;
     height: 64px;
     margin: 0px 0px -12px 0px;
-    background-image: url(sprites/button_flagged_pressed.png);
+    background-image: url(sprites/gameplay/button_flagged_pressed.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     cursor: pointer;
     display: inline;
 }
 .button_toggle_active:hover {
-    background-image: url(sprites/button_flagged_pressed_hold.png);
+    background-image: url(sprites/gameplay/button_flagged_pressed_hold.png);
 }
 .refresh {
     border: none;
     width: 64px;
     height: 64px;
-    background-image: url(sprites/refresh.png);
+    background-image: url(sprites/gui/refresh.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     cursor: pointer;
     display: inline;
 }
 .refresh:hover {
-    background-image: url(sprites/refresh_hold.png);
+    background-image: url(sprites/gui/refresh_hold.png);
 }
 .refresh:active {
-    background-image: url(sprites/refresh_active.png);
+    background-image: url(sprites/gui/refresh_active.png);
 }
 
 .textbox {
@@ -248,30 +248,30 @@ input {
     width: 76px;
     height: 40px;
     padding: 12px;
-    background-image: url(sprites/textbox.png);
+    background-image: url(sprites/gui/textbox.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     cursor: pointer;
     display: inline;
 }
-.rowsinput {background-image: url(sprites/textbox_rows.png)}
+.rowsinput {background-image: url(sprites/gui/textbox_rows.png)}
 .rowsinput.disabledinput {
-    background-image: url(sprites/textbox_rows_disabled.png);
+    background-image: url(sprites/gui/textbox_rows_disabled.png);
     pointer-events: none;
 }
-.columnsinput {background-image: url(sprites/textbox_columns.png)}
+.columnsinput {background-image: url(sprites/gui/textbox_columns.png)}
 .columnsinput.disabledinput {
-    background-image: url(sprites/textbox_columns_disabled.png);
+    background-image: url(sprites/gui/textbox_columns_disabled.png);
     pointer-events: none;
 }
-.bombsinput {background-image: url(sprites/textbox_bombs.png)}
+.bombsinput {background-image: url(sprites/gui/textbox_bombs.png)}
 .bombsinput.disabledinput {
-    background-image: url(sprites/textbox_bombs_disabled.png);
+    background-image: url(sprites/gui/textbox_bombs_disabled.png);
     pointer-events: none;
 }
-.heartsinput {background-image: url(sprites/textbox_hearts.png)}
+.heartsinput {background-image: url(sprites/gui/textbox_hearts.png)}
 .heartsinput.disabledinput {
-    background-image: url(sprites/textbox_hearts_disabled.png);
+    background-image: url(sprites/gui/textbox_hearts_disabled.png);
     pointer-events: none;
 }
 
@@ -288,12 +288,12 @@ input {
 }
 .screen_win {
     display: block;
-    background-image: url(sprites/victory.png);
+    background-image: url(sprites/gui/victory.png);
     z-index: 999;
 }
 .screen_lose {
     display: block;
-    background-image: url(sprites/defeat.png);
+    background-image: url(sprites/gui/defeat.png);
     z-index: 999;
 }
 
@@ -308,7 +308,7 @@ input {
     width: 64px;
     height: 64px;
     margin: 0px 0px 0px -4px;
-    background-image: url(sprites/heart.png);
+    background-image: url(sprites/gui/heart.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
 }
@@ -316,7 +316,7 @@ input {
     width: 64px;
     height: 64px;
     margin: 0px 0px 0px -4px;
-    background-image: url(sprites/heart_empty.png);
+    background-image: url(sprites/gui/heart_empty.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
 }
@@ -324,7 +324,7 @@ input {
     width: 64px;
     height: 64px;
     margin: 0px 0px 0px -4px;
-    background-image: url(sprites/heart_blank.png);
+    background-image: url(sprites/gui/heart_blank.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
 }
@@ -337,7 +337,7 @@ input {
     width: 136px;
     height: 40px;
     padding: 12px 12px 12px 64px;
-    background-image: url(sprites/coinamount.png);
+    background-image: url(sprites/gui/coinamount.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     display: inline;
@@ -354,7 +354,7 @@ input {
     left: 24px;
     top: 24px;
     background-size: cover;
-    background-image: url('sprites/explosion.png');
+    background-image: url(sprites/gameplay/explosion.png);
     background-repeat: no-repeat;
     background-position: 0 0;
     animation: explosion 0.5s steps(11);
@@ -374,16 +374,16 @@ input {
     border: none;
     width: 64px;
     height: 64px;
-    background-image: url(sprites/settings.png);
+    background-image: url(sprites/gui/settings.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     cursor: pointer;
 }
 #settings:hover {
-    background-image: url(sprites/settings_hold.png);
+    background-image: url(sprites/gui/settings_hold.png);
 }
 #settings:active {
-    background-image: url(sprites/settings_active.png);
+    background-image: url(sprites/gui/settings_active.png);
 }
 .inputrow {
     display: flex;
@@ -415,7 +415,7 @@ input {
     height: 40px;
     width: 268px;
     padding: 12px;
-    background-image: url(sprites/textbox.png);
+    background-image: url(sprites/gui/textbox.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
 }
@@ -424,13 +424,13 @@ input {
     width: 96px;
     height: 64px;
     margin: 0px 0px 0px 0px;
-    background-image: url(sprites/toggle_off.png);
+    background-image: url(sprites/gui/toggle_off.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     cursor: pointer;
 }
 .toggle_on {
-    background-image: url(sprites/toggle_on.png);
+    background-image: url(sprites/gui/toggle_on.png);
 }
 
 #floor {
@@ -441,7 +441,7 @@ input {
     width: 244px;
     height: 40px;
     padding: 12px 12px 12px 12px;
-    background-image: url(sprites/textbox.png);
+    background-image: url(sprites/gui/textbox.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     display: inline;
@@ -466,7 +466,7 @@ input {
 }
 
 #blank_button {
-    background-image: url(sprites/button.png);
+    background-image: url(sprites/gameplay/button.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     width: 64px;
@@ -475,14 +475,14 @@ input {
     cursor: pointer;
 }
 #blank_button:hover {
-    background-image: url(sprites/button_hold.png);
+    background-image: url(sprites/gameplay/button_hold.png);
 }
 #blank_button:checked {
-    background-image: url(sprites/button_hold.png);
+    background-image: url(sprites/gameplay/button_hold.png);
 }
 
 #wall_button {
-    background-image: url(sprites/wall.png);
+    background-image: url(sprites/gameplay/wall.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     width: 64px;
@@ -491,17 +491,17 @@ input {
     cursor: pointer;
 }
 #wall_button:hover {
-    background-image: url(sprites/wall_active.png);
+    background-image: url(sprites/gameplay/wall_active.png);
 }
 #wall_button:active {
-    background-image: url(sprites/wall_active.png);
+    background-image: url(sprites/gameplay/wall_active.png);
 }
 #wall_button:checked {
-    background-image: url(sprites/wall_active.png);
+    background-image: url(sprites/gameplay/wall_active.png);
 }
 
 #locked_button {
-    background-image: url(sprites/button_locked.png);
+    background-image: url(sprites/gameplay/button_locked.png);
     background-size: 100% 100%;
     background-repeat: no-repeat;
     width: 64px;
@@ -510,13 +510,13 @@ input {
     cursor: pointer;
 }
 #locked_button:hover {
-    background-image: url(sprites/button_locked_active.png);
+    background-image: url(sprites/gameplay/button_locked_active.png);
 }
 #locked_button:active {
-    background-image: url(sprites/button_locked_active.png);
+    background-image: url(sprites/gameplay/button_locked_active.png);
 }
 #locked_button:checked {
-    background-image: url(sprites/button_locked_active.png);
+    background-image: url(sprites/gameplay/button_locked_active.png);
 }
 
 .editrow {
@@ -533,22 +533,22 @@ input {
     cursor: pointer;
 }
 .ed_button {
-    background-image: url(sprites/button.png);
+    background-image: url(sprites/gameplay/button.png);
 }
 .ed_button:hover {
-    background-image: url(sprites/button_hold.png);
+    background-image: url(sprites/gameplay/button_hold.png);
 }
 .ed_locked_button {
-    background-image: url(sprites/button_locked.png);
+    background-image: url(sprites/gameplay/button_locked.png);
 }
 .ed_locked_button:hover {
-    background-image: url(sprites/button_locked_active.png);
+    background-image: url(sprites/gameplay/button_locked_active.png);
 }
 .ed_wall_button {
-    background-image: url(sprites/wall.png);
+    background-image: url(sprites/gameplay/wall.png);
 }
 .ed_wall_button:hover {
-    background-image: url(sprites/wall_active.png);
+    background-image: url(sprites/gameplay/wall_active.png);
 }
 
 #button_export {
@@ -559,14 +559,14 @@ input {
     background-size: 100% 100%;
     background-repeat: no-repeat;
     cursor: pointer;
-    background-image: url(sprites/export.png);
+    background-image: url(sprites/gui/export.png);
     position: relative;
 }
 #button_export:hover {
-    background-image: url(sprites/export_hold.png);
+    background-image: url(sprites/gui/export_hold.png);
 }
 #button_export:active {
-    background-image: url(sprites/export_active.png);
+    background-image: url(sprites/gui/export_active.png);
 }
 #button_reset {
     border: none;
@@ -576,14 +576,14 @@ input {
     background-size: 100% 100%;
     background-repeat: no-repeat;
     cursor: pointer;
-    background-image: url(sprites/refresh.png);
+    background-image: url(sprites/gui/refresh.png);
     position: relative;
 }
 #button_reset:hover {
-    background-image: url(sprites/refresh_hold.png);
+    background-image: url(sprites/gui/refresh_hold.png);
 }
 #button_reset:active {
-    background-image: url(sprites/refresh_active.png);
+    background-image: url(sprites/gui/refresh_active.png);
 }
 #button_play {
     border: none;
@@ -593,14 +593,14 @@ input {
     background-size: 100% 100%;
     background-repeat: no-repeat;
     cursor: pointer;
-    background-image: url(sprites/play.png);
+    background-image: url(sprites/gui/play.png);
     position: relative;
 }
 #button_play:hover {
-    background-image: url(sprites/play_hold.png);
+    background-image: url(sprites/gui/play_hold.png);
 }
 #button_play:active {
-    background-image: url(sprites/play_active.png);
+    background-image: url(sprites/gui/play_active.png);
 }
 
 .text_export {
