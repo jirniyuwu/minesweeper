@@ -22,6 +22,18 @@ input {
     flex-direction: column;
     row-gap: 0px;
 }
+#debug {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    background-color: #00000050;
+    color: #E1E1E8;
+    max-width: 40%;
+    width: min-content;
+    overflow-wrap: break-word;
+    pointer-events: none;
+    z-index: 1001;
+}
 .row {
     display: flex;
     column-gap: 4px;

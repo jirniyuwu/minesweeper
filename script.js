@@ -33,13 +33,12 @@ let canClickButton = true;
 let flagMode = false;
 let isShifting = false;
 let isMidGame = false;
+let debugMode = false;
 
 let isFloorsMode = false;
 let currentFloor = 0;
 
-if (localStorage.getItem('customLayout') != null) {
-    checkCustomParam();
-}
+checkParam();
 resetGame();
 
 document.addEventListener('keydown', (event) => {
@@ -52,6 +51,7 @@ document.addEventListener('keydown', (event) => {
     if (event.key == "r") {
         resetGame();
     }
+    updateDebug();
 })
 document.addEventListener('keyup', (event) => {
     let toggleButton = document.querySelector('#flag_toggle')
@@ -60,6 +60,7 @@ document.addEventListener('keyup', (event) => {
         flagMode = false;
         isShifting = false;
     }
+    updateDebug();
 })
 document.addEventListener('animationend', (event) => {
     if (event.animationName == 'explosion') {
@@ -108,7 +109,8 @@ async function resetGame() {
     canClickButton = true;
     toggleMidGame(false);
 
-    document.documentElement.style.setProperty('--is-active', 1)
+    document.documentElement.style.setProperty('--is-active', 1);
+    updateDebug();
     generateField(row, column);
 }
 async function generateField(row, column) {
@@ -159,42 +161,11 @@ async function generateField(row, column) {
     }
     document.querySelector('#field').innerHTML = fieldHtml;
 
-    bombs = [];
-    megaBombs = [];
-    if (isFloorsMode) {
-        while (bombs.length < bombNum) {
-            let bombId = Math.floor(Math.random() * rows * columns);
-            if (!bombs.includes(bombId)) {
-                bombs.push(bombId)
-            }
-        }
-        bombs = bombs.filter(value => !wallTiles.includes(value))
-
-        if (currentFloor >= 10) {
-            let megaBombNum = Math.floor(Math.min(currentFloor/10, bombs.length/15));
-            while (megaBombs.length < megaBombNum) {
-                let bombId = Math.floor(Math.random() * rows * columns);
-                if (bombs.includes(bombId)) {
-                    megaBombs.push(bombId)
-                }
-            }
-            bombs = bombs.filter(value => !megaBombs.includes(value))
-        }
-
-        document.getElementById('bombs').value = bombs.length + megaBombs.length;
-        document.getElementById('row').value = rows;
-        document.getElementById('column').value = columns;
-    } else {
-        while (bombs.length < bombNum) {
-            let bombId = Math.floor(Math.random() * rows * columns);
-            if (!bombs.includes(bombId) && !wallTiles.includes(bombId)) {
-                bombs.push(bombId)
-            }
-        }
-    }
+    generateBombs();
     if (allowPickups) {
         generatePickups();
     }
+    updateDebug();
 }
 
 function generateBombs(id) {
@@ -247,6 +218,7 @@ function generatePickups() {
     generateEyes();
     generateCoins();
 
+    updateDebug();
     pickedPickups = []
 }
 
@@ -357,6 +329,7 @@ function getPickupAt(id) {
 }
 
 function getNeighbors(id) {
+    if (id == null) {return []}
     let x = getButtonX(id);
     let y = getButtonY(id);
     let neighbors = [];
@@ -376,6 +349,7 @@ function getBombNeighbors(id) {
 }
 
 function clickButton(id, isClick) {
+    updateDebug();
     let button = document.querySelector('#button' + id);
     if (!isMidGame) {
         toggleMidGame(true);
@@ -391,6 +365,7 @@ function clickButton(id, isClick) {
         }
         isFirstClick = false;
         if (isClick && pickedPickups.includes(id)) {
+            updateDebug();
             switch (getPickupAt(id)) {
                 case 'heart':
                     triggerHeartPickup(id, button);
@@ -506,6 +481,7 @@ function clickButton(id, isClick) {
             win();
         }
     }   
+    updateDebug();
 }
 
 function triggerHeartPickup(id, button) {
@@ -517,6 +493,7 @@ function triggerHeartPickup(id, button) {
         setHearts();
         hearts = hearts.filter(value => value != id);
         pickedPickups = pickedPickups.filter(value => value != id);
+        updateDebug();
         return true;
     } else {
         return false;
@@ -531,6 +508,7 @@ function triggerBlankHeartPickup(id, button) {
         setHearts();
         blankHearts = blankHearts.filter(value => value != id);
         pickedPickups = pickedPickups.filter(value => value != id);
+        updateDebug();
         return true;
     } else {
         return false;
@@ -560,6 +538,7 @@ function triggerEyePickup(id, button) {
     }
     eyes = eyes.filter(value => value != id);
     pickedPickups = pickedPickups.filter(value => value != id);
+    updateDebug();
     return true;
 }
 function triggerCoinPickup(id, button) {
@@ -570,6 +549,7 @@ function triggerCoinPickup(id, button) {
     setCoins();
     coinTiles = coinTiles.filter(value => value != id);
     pickedPickups = pickedPickups.filter(value => value != id);
+    updateDebug();
     return true;
 }
 function triggerCoinBagPickup(id, button) {
@@ -580,28 +560,14 @@ function triggerCoinBagPickup(id, button) {
     let neighbors = getNeighbors(id).filter(value => getPickupAt(value) == null && !wallTiles.includes(value))
     neighbors.forEach((neighborId) => {
         if (Math.random() <= 0.3) {
-            let neighborButton = document.querySelector('#button' + neighborId);
-            if (isButtonPressed(neighborId)) {
-                neighborButton.innerHTML = `<div class="bg num${getBombNeighbors(neighborId).length}">
-                <div class="bg coinpickup"></div></div>`
-                pickedPickups.push(neighborId);
-            }
-            coinTiles.push(neighborId);
+            setPickupAt(neighborId, 'coin')
         }
     })
     coinBags = coinBags.filter(value => value != id);
     pickedPickups = pickedPickups.filter(value => value != id);
     
-    if (button) {
-        button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"><div class="bg coinpickup"></div></div>`
-        coinTiles.push(id)
-        pickedPickups.push(id)
-    } else if (getPickupAt(id) == null) {
-        let currentButton = document.querySelector('#button' + id);
-        currentButton.innerHTML = `<div class="bg num${getBombNeighbors(id).length}"><div class="bg coinpickup"></div></div>`
-        coinTiles.push(id)
-        pickedPickups.push(id)
-    }
+    setPickupAt(id, 'coin')
+    updateDebug();
     return true;
 }
 function triggerKeyPickup(id, button) {
@@ -614,6 +580,7 @@ function triggerKeyPickup(id, button) {
     lockedTiles = [];
     keys = [];
     pickedPickups = pickedPickups.filter(value => value != id);
+    updateDebug();
     return true;
 }
 function triggerRandomPickup(id, button) {
@@ -660,6 +627,7 @@ function triggerRandomPickup(id, button) {
             : `<div class="bg num${getBombNeighbors(id).length}"></div>`
         randomTiles = randomTiles.filter(value => value != id);
         pickedPickups = pickedPickups.filter(value => value != id);
+        updateDebug();
         return true;
     } else {
         return false;
@@ -672,6 +640,7 @@ function lose() {
     toggleMidGame(false);
     document.querySelector('#endscreen').classList.add('screen_lose');
     revealTiles(true);
+    updateDebug();
 }
 
 function win() {
@@ -708,6 +677,7 @@ function win() {
             (rows*columns-wallTiles.length)/4));
         
         generateField(int(rows), int(columns))
+        updateDebug();
         return;
     }
 
@@ -716,6 +686,7 @@ function win() {
     toggleMidGame(false);
     document.querySelector('#endscreen').classList.add('screen_win');
     revealTiles(false);
+    updateDebug();
 }
 
 function winCondition() {
@@ -807,7 +778,8 @@ function flagToggle() {
     } else {
         toggleButton.classList.replace('button_toggle_active', 'button_toggle')
         flagMode = false;
-    }
+    }   
+    updateDebug();
 }
 
 function setHearts() {
@@ -895,24 +867,31 @@ async function parseWallsJson(name) {
                 }
             }
         }
+        updateDebug();
     } catch {
         lockedTiles = [];
         wallTiles = [];
     }
 }
 
-function checkCustomParam() {
+function checkParam() {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const isCustom = urlParams.get('custom') ? urlParams.get('custom') : false;
+    const isDebug = urlParams.get('debug') ? urlParams.get('debug') : false;
 
-    if (isCustom) {
+    if (localStorage.getItem('customLayout') != null && isCustom) {
         customLayout = true;
         document.querySelector('#layout_toggle').classList.add('toggle_on')
         document.getElementById("row").value = localStorage.getItem('clRows')
         document.getElementById("column").value = localStorage.getItem('clColumns')
         document.getElementById("bombs").value = int(localStorage.getItem('clRows')*localStorage.getItem('clColumns')/6)
     }
+    if (isDebug) {
+        debugMode = true;
+        updateDebug();
+    }
+    return (isDebug)
 }
 
 function toggleFloors() {
@@ -941,13 +920,13 @@ function toggleFloors() {
         document.querySelector('#layout_toggle').classList.remove('toggle_on');
         customLayout = false;
     }
+    resetGame();
+    updateDebug();
 }
 
 function togglePickups() {
     if (isMidGame) {
         return;
-    } else if (isFirstClick) {
-        resetGame();
     }
     let toggleButton = document.querySelector('#pickups_toggle');
     if (allowPickups) {
@@ -959,6 +938,8 @@ function togglePickups() {
         toggleButton.classList.add('toggle_on')
         setCoins();
     }
+    resetGame();
+    updateDebug();
 }
 
 function toggleCustomLayout() {
@@ -974,7 +955,8 @@ function toggleCustomLayout() {
         }
         customLayout = true;
         toggleButton.classList.add('toggle_on')
-    }
+    }   
+    updateDebug();
 
     if (isShifting) {
         let currentUrl = window.location.origin + window.location.pathname.replace('index.html', '');
@@ -983,7 +965,166 @@ function toggleCustomLayout() {
     }
 }
 
+function updateDebug() {
+    let container = document.querySelector('#debug')
+    if (debugMode) {
+        container.innerHTML = `
+            -- debug mode --<br>
+            can reduce performance, use at your own risk<br>
+            <br>
+            rows = ${rows}<br>
+            columns = ${columns}<br>
+            <br>
+            allowPickups = ${allowPickups}<br>
+            pickedPickups = [${pickedPickups}]<br>
+            excludeForPickupGeneration = [${excludeForPickupGeneration}]<br>
+            <br>
+            hearts = [${hearts}]<br>
+            blankHearts = [${blankHearts}]<br>
+            eyes = [${eyes}]<br>
+            keys = [${keys}]<br>
+            coinTiles = [${coinTiles}]<br>
+            coinBags = [${coinBags}]<br>
+            randomTiles = [${randomTiles}]<br>
+            <br>
+            customLayout = ${customLayout}<br>
+            wallTiles = [${wallTiles}]<br>
+            lockedTiles = [${lockedTiles}]<br>
+            <br>
+            bombs = [${bombs}]<br>
+            megaBombs = [${megaBombs}]<br>
+            bombNum = ${bombNum}<br>
+            flags = [${flags}]<br>
+            resistedBombs = ${resistedBombs}<br>
+            clickedBombs = [${clickedBombs}]<br>
+            <br>
+            currentLife = ${currentLife}<br>
+            maxLife = ${maxLife}<br>
+            coins = ${coins}<br>
+            <br>
+            isFirstClick = ${isFirstClick}<br>
+            canClickButton = ${canClickButton}<br>
+            flagMode = ${flagMode}<br>
+            isShifting = ${isShifting}<br>
+            isMidGame = ${isMidGame}<br>
+            debugMode = ${debugMode}<br>
+            <br>
+            isFloorsMode = ${isFloorsMode}<br>
+            currentFloor = ${currentFloor}<br>
+        `
+    } else {
+        container.innerHTML = '';
+    }
+    return debugMode;
+}
+
+function setPickupAt(id, pickup) {
+    if (id == null || pickup == null) {
+        return false;
+    }
+    let exclude = [...bombs, ...megaBombs, ...wallTiles, ...hearts, ...blankHearts, ...eyes, ...keys, ...coinTiles, ...coinBags, ...randomTiles];
+    let button = document.querySelector('#button' + id);
+    if (exclude.includes(id)) {
+        return false;
+    }
+    if (isButtonPressed(id)) {
+        switch (pickup) {
+            case 'heart': 
+                hearts.push(id);
+                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+                <div class="bg heartpickup"></div></div>`
+                pickedPickups.push(id);
+                break;
+            case 'blankheart': 
+                blankHearts.push(id);
+                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+                <div class="bg blankheartpickup"></div></div>`
+                pickedPickups.push(id);
+                break;
+            case 'eye': 
+                eyes.push(id);
+                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+                <div class="bg eyepickup"></div></div>`
+                pickedPickups.push(id);
+                break;
+            case 'key': 
+                keys.push(id);
+                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+                <div class="bg keypickup"></div></div>`
+                pickedPickups.push(id);
+                break;
+            case 'coin': 
+                coinTiles.push(id);
+                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+                <div class="bg coinpickup"></div></div>`
+                pickedPickups.push(id);
+                break;
+            case 'bag': 
+                coinBags.push(id);
+                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+                <div class="bg bagpickup"></div></div>`
+                pickedPickups.push(id);
+                break;
+            case 'random': 
+                randomTiles.push(id);
+                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+                <div class="bg randompickup"></div></div>`
+                pickedPickups.push(id);
+                break;
+            case 'bomb': 
+                bombs.push(id);
+                button.innerHTML = `<div class="bg bomb"></div>`
+                break;
+            case 'megabomb':
+                megaBombs.push(id); 
+                button.innerHTML = `<div class="bg megabomb"></div>`
+                break;
+            default:
+                return false;
+                break;
+        }
+        updateDebug();
+        return true;
+    } else {
+        switch (pickup) {
+            case 'heart': 
+                hearts.push(id);
+                break;
+            case 'blankheart':
+                blankHearts.push(id); 
+                break;
+            case 'eye': 
+                eyes.push(id);
+                break;
+            case 'key': 
+                keys.push(id);
+                break;
+            case 'coin': 
+                coinTiles.push(id);
+                break;
+            case 'bag': 
+                coinBags.push(id);
+                break;
+            case 'random': 
+                randomTiles.push(id);
+                break;
+            case 'bomb': 
+                bombs.push(id);
+                break;
+            case 'megabomb': 
+                megaBombs.push(id);
+                break;
+            default:
+                return false;
+                break;
+        }
+        updateDebug();
+        return true;
+    }
+}
+
 document.addEventListener('click', e => {
+    updateDebug();
     const isDropdown = e.target.matches("[data-dropdown-button]")
     if (!isDropdown && e.target.closest("[data-dropdown]") != null) {
         return;

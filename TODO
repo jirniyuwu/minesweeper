@@ -10,6 +10,7 @@ Todo:
   [+] editor mode
   [+] function getPickupAtId() and optimize pickups on click
   [+] random event pickup
+  [+] debug mode
 
 Floors:
   [+] reset on win
