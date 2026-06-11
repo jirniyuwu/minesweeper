@@ -11,9 +11,10 @@ Todo:
   [+] function getPickupAtId() and optimize pickups on click
   [+] random event pickup
   [+] debug mode
+  [] piggy bank (spend coins to trigger randoms, has a chance to explode)
 
 Floors:
   [+] reset on win
   [+] floor counter
-  [] shop and currency
+  [-] shop and currency
   [] difficulty scaling
