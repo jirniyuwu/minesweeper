@@ -14,6 +14,7 @@ let coinBags = [];
 let randomTiles = [];
 
 let customLayout = false;
+let jsonCache = {};
 let wallTiles = [];
 let lockedTiles = [];
 
@@ -825,17 +826,22 @@ function toggleMidGame(boolean) {
 }
 
 async function loadJSON(path) {
-  try {
-    const response = await fetch(path); 
-    
-    if (!response.ok) {
-      throw new Error(`failed to load json: ${response.status}`);
+    if (jsonCache[path] != null) {
+        return jsonCache[path];
     }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('failed to load json:', error);
-  }
+    try {
+        const response = await fetch(path); 
+        
+        if (!response.ok) {
+        throw new Error(`failed to load json: ${response.status}`);
+        }
+        
+        let result = await response.json();
+        jsonCache[path] = result;
+        return result;
+    } catch (error) {
+        console.error('failed to load json:', error);
+    }
 }
 async function parseWallsJson(name) {
     wallTiles = []
@@ -988,6 +994,7 @@ function updateDebug() {
             randomTiles = [${randomTiles}]<br>
             <br>
             customLayout = ${customLayout}<br>
+            jsonCache = ${JSON.stringify(Object.keys(jsonCache))}<br>
             wallTiles = [${wallTiles}]<br>
             lockedTiles = [${lockedTiles}]<br>
             <br>
