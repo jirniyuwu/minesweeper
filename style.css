@@ -28,8 +28,7 @@ input {
     left: 0px;
     background-color: #00000050;
     color: #E1E1E8;
-    max-width: 40%;
-    width: min-content;
+    width: 40%;
     overflow-wrap: break-word;
     pointer-events: none;
     z-index: 1001;
@@ -194,6 +193,13 @@ input {
 }
 .bagpickup:hover {
     background-image: if(style(--is-active: 1): url(sprites/gameplay/coin_bag_active.png); else: url(sprites/gameplay/coin_bag.png));
+}
+.shoppickup {
+    background-image: url(sprites/gameplay/shop.png);
+    cursor: if(style(--is-active: 1): pointer; else: default);
+}
+.shoppickup:hover {
+    background-image: if(style(--is-active: 1): url(sprites/gameplay/shop_active.png); else: url(sprites/gameplay/shop.png));
 }
 .randompickup {
     cursor: if(style(--is-active: 1): pointer; else: default);

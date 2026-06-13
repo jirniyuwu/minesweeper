@@ -12,6 +12,7 @@ let keys = [];
 let coinTiles = [];
 let coinBags = [];
 let randomTiles = [];
+let shopTiles = [];
 
 let customLayout = false;
 let jsonCache = {};
@@ -140,6 +141,7 @@ async function generateField(row, column) {
     blankHearts = [];
     eyes = [];
     keys = [];
+    shopTiles = [];
     resistedBombs = 0;
     isFirstClick = true;
 
@@ -162,10 +164,9 @@ async function generateField(row, column) {
     }
     document.querySelector('#field').innerHTML = fieldHtml;
 
-    generateBombs();
-    if (allowPickups) {
-        generatePickups();
-    }
+    bombs = [];
+    megaBombs = [];
+    excludeForPickupGeneration = [];
     updateDebug();
 }
 
@@ -218,11 +219,26 @@ function generatePickups() {
     generateHearts();
     generateEyes();
     generateCoins();
+    generateShops();
 
     updateDebug();
     pickedPickups = []
 }
 
+function generateShops() {
+    shopTiles = [];
+    if (isFloorsMode && currentFloor < 7) {
+        return;
+    }
+    max = isFloorsMode ? Math.floor(bombNum/60 + randInt(0, currentFloor)/12 + randInt(-2, 1)) : Math.floor(bombNum/60 + randInt(-2, 1))
+    while (shopTiles.length < max && excludeForPickupGeneration.length + shopTiles.length < rows*columns) {
+        let shopId = Math.floor(Math.random() * rows * columns);
+        if (!shopTiles.includes(shopId) && !excludeForPickupGeneration.includes(shopId)) {
+            shopTiles.push(shopId)
+        }
+    }
+    excludeForPickupGeneration = [...excludeForPickupGeneration, ...shopTiles]
+}
 function generateRandoms() {
     randomTiles = [];
     max = isFloorsMode ? Math.floor(bombNum/30 + randInt(0, currentFloor)/6 + randInt(-3, 2)) : Math.floor(bombNum/30 + randInt(-2, 1))
@@ -253,7 +269,7 @@ function generateHearts() {
     }
     hearts = [];
     blankHearts = []
-    max = Math.floor(bombNum/15 + randInt(-2, 1))
+    max = Math.floor(bombNum/20 + randInt(-3, 1))
     while (hearts.length < max && excludeForPickupGeneration.length + hearts.length < rows*columns) {
         let heartId = Math.floor(Math.random() * rows * columns);
         if (!hearts.includes(heartId) && !excludeForPickupGeneration.includes(heartId)) {
@@ -318,6 +334,7 @@ function getPickupAt(id) {
     if (eyes.includes(id)) {pickups.push('eye')}
     if (coinTiles.includes(id)) {pickups.push('coin')}
     if (coinBags.includes(id)) {pickups.push('bag')}
+    if (shopTiles.includes(id)) {pickups.push('shop')}
     if (keys.includes(id)) {pickups.push('key')}
     if (bombs.includes(id)) {pickups.push('bomb')}
     if (megaBombs.includes(id)) {pickups.push('megabomb')}
@@ -350,7 +367,6 @@ function getBombNeighbors(id) {
 }
 
 function clickButton(id, isClick) {
-    updateDebug();
     let button = document.querySelector('#button' + id);
     if (!isMidGame) {
         toggleMidGame(true);
@@ -359,11 +375,10 @@ function clickButton(id, isClick) {
         return;
     }
     if (canClickButton && !clickedBombs.includes(id) && !wallTiles.includes(id)) {
-        let nearBombs = getBombNeighbors(id).length;
-        if ((bombs.includes(id) || nearBombs > 0) && isFirstClick) {
+        if (isFirstClick) {
             generateBombs(id);
-            nearBombs = getBombNeighbors(id).length;
         }
+        nearBombs = getBombNeighbors(id).length;
         isFirstClick = false;
         if (isClick && pickedPickups.includes(id)) {
             updateDebug();
@@ -386,6 +401,10 @@ function clickButton(id, isClick) {
                     break;
                 case 'bag':
                     triggerCoinBagPickup(id, button);
+                    return;
+                    break;
+                case 'shop':
+                    triggerShopPickup(id, button);
                     return;
                     break;
                 case 'key':
@@ -469,6 +488,11 @@ function clickButton(id, isClick) {
                     <div class="bg bagpickup"></div></div>`
                     pickedPickups.push(id);
                     break;
+                case 'shop': 
+                    button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+                    <div class="bg shoppickup"></div></div>`
+                    pickedPickups.push(id);
+                    break;
                 case 'random': 
                     button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
                     <div class="bg randompickup"></div></div>`
@@ -482,7 +506,7 @@ function clickButton(id, isClick) {
             win();
         }
     }   
-    updateDebug();
+    if (isClick) {updateDebug()};
 }
 
 function triggerHeartPickup(id, button) {
@@ -634,6 +658,48 @@ function triggerRandomPickup(id, button) {
         return false;
     }
 }
+function triggerShopPickup(id, button) {
+    if (coins < 1) {
+        return;
+    } 
+    coins--;
+    setCoins();
+    let chance = Math.random();
+    if (chance <= 0.05) {
+        currentLife--;
+        setHearts();
+        if (currentLife == 0) {
+            resistedBombs--;
+            lose();
+        }
+        button.innerHTML = `<div class="bg num${getBombNeighbors(id).length} bgblank">
+            <div class="explosion"></div></div>` 
+        shopTiles = shopTiles.filter(value => value != id);
+        pickedPickups = pickedPickups.filter(value => value != id);
+        updateDebug();
+    } else if (chance <= 0.35) {
+        let openNeighbors = getNeighbors(id).filter(value => getPickupAt(value) == null);
+        if (openNeighbors.length == 0) {
+            currentLife--;
+            setHearts();
+            if (currentLife == 0) {
+                resistedBombs--;
+                lose();
+            }
+            button.innerHTML = `<div class="bg num${getBombNeighbors(id).length} bgblank">
+                <div class="explosion"></div></div>` 
+            shopTiles = shopTiles.filter(value => value != id);
+            pickedPickups = pickedPickups.filter(value => value != id);
+            updateDebug();
+        }
+        let neighborId = openNeighbors[randInt(0, openNeighbors.length - 1)];
+        let availablePickups = maxLife > 1 ? ["heart", "blankheart", "eye", "coin", "random"] : ["eye", "random", "coin", "bag"];
+        let randomPickup = availablePickups[randInt(0, availablePickups.length - 1)];
+        setPickupAt(neighborId, randomPickup);
+    } else {
+        return;
+    }
+}
 
 function lose() {
     document.documentElement.style.setProperty('--is-active', 0);
@@ -729,6 +795,13 @@ function revealTiles(explode) {
                     `<div class="bg num${getBombNeighbors(i).length}">
                     <div class="bg bagpickup"></div></div>` : 
                     `<div class="bg bagpickup"></div>`;
+                break;
+            case 'shop':
+                button.classList.replace('button', 'button_low');
+                button.innerHTML = button.classList.contains('button_pressed') ? 
+                    `<div class="bg num${getBombNeighbors(i).length}">
+                    <div class="bg shoppickup"></div></div>` : 
+                    `<div class="bg shoppickup"></div>`;
                 break;
             case 'heart':
                 button.classList.replace('button', 'button_low');
@@ -992,6 +1065,7 @@ function updateDebug() {
             coinTiles = [${coinTiles}]<br>
             coinBags = [${coinBags}]<br>
             randomTiles = [${randomTiles}]<br>
+            shopTiles = [${shopTiles}]<br>
             <br>
             customLayout = ${customLayout}<br>
             jsonCache = ${JSON.stringify(Object.keys(jsonCache))}<br>
@@ -1072,6 +1146,12 @@ function setPickupAt(id, pickup) {
                 <div class="bg bagpickup"></div></div>`
                 pickedPickups.push(id);
                 break;
+            case 'shop': 
+                shopTiles.push(id);
+                button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
+                <div class="bg shoppickup"></div></div>`
+                pickedPickups.push(id);
+                break;
             case 'random': 
                 randomTiles.push(id);
                 button.innerHTML = `<div class="bg num${getBombNeighbors(id).length}">
@@ -1111,6 +1191,9 @@ function setPickupAt(id, pickup) {
                 break;
             case 'bag': 
                 coinBags.push(id);
+                break;
+            case 'shop': 
+                shopTiles.push(id);
                 break;
             case 'random': 
                 randomTiles.push(id);
