@@ -1023,13 +1023,14 @@ function togglePickups() {
 
 function toggleCustomLayout() {
     let toggleButton = document.querySelector('#layout_toggle');
+    let debug = debugMode ? '?debug=true' : ''
     if (customLayout || isFloorsMode) {
         customLayout = false;
         toggleButton.classList.remove('toggle_on');
     } else {
         if (localStorage.getItem('customLayout') == null) {
             let currentUrl = window.location.origin + window.location.pathname.replace('index.html', '');
-            window.location.assign(currentUrl + 'editor.html')
+            window.location.assign(currentUrl + 'editor.html' + debug)
             return;
         }
         customLayout = true;
@@ -1039,7 +1040,7 @@ function toggleCustomLayout() {
 
     if (isShifting) {
         let currentUrl = window.location.origin + window.location.pathname.replace('index.html', '');
-        window.location.assign(currentUrl + 'editor.html')
+        window.location.assign(currentUrl + 'editor.html' + debug)
         return;
     }
 }

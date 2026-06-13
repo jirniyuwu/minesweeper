@@ -7,8 +7,10 @@ let lockedTiles = [];
 let mousePressed = false;
 let selector = 'blank';
 let isShifting = false;
+let debugMode = false;
 
 function int(num) {return parseInt(num, 10)}
+checkParam();
 generateField(8, 8)
 
 document.addEventListener('input', (event) => {
@@ -47,16 +49,19 @@ document.addEventListener('keydown', (event) => {
         default:
             break;
     }
+    updateDebug();
 }) 
 document.addEventListener('keyup', (event) => {
     if (!event.shiftKey) {
         isShifting = false;
     }
+    updateDebug();
 }) 
 
 document.querySelectorAll('input[name="button_select"]').forEach(radio => {
     radio.addEventListener('change', (event) => {
         selector = event.target.value;
+        updateDebug();
     })
 })
 
@@ -92,6 +97,7 @@ function refreshField() {
         fieldHtml += `</div>`
     }
     document.querySelector('#field').innerHTML = fieldHtml;
+    updateDebug();
 }
 
 function editButton(button) {
@@ -118,6 +124,7 @@ function editButton(button) {
         default:
             break;
     }
+    updateDebug();
 }
 
 function resetField() {
@@ -194,7 +201,8 @@ function exportButton(copy) {
 function exportAndPlay() {
     exportButton(false);
     let redirect = window.location.origin + window.location.pathname.replace('editor.html', '').replace('editor', '');
-    window.location.assign(redirect + '?custom=true')
+    let debug = debugMode ? '&debug=true' : '';
+    window.location.assign(redirect + '?custom=true' + debug)
 }
 
 document.querySelector('#field').addEventListener('mousedown', (event) => {
@@ -210,12 +218,48 @@ document.addEventListener('mousemove', (event) => {
     const elements = document.elementsFromPoint(event.clientX, event.clientY);
     const selectedButton = elements[0];
     if (selectedButton && selectedButton.classList.contains('editbutton')) {
-            editButton(selectedButton);
+        editButton(selectedButton);
     }
 });
 
 document.addEventListener('mouseup', () => {
     if (mousePressed) {
         mousePressed = false;
+        updateDebug();
     }
 });
+
+function checkParam() {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const isDebug = urlParams.get('debug') ? urlParams.get('debug') : false;
+
+    if (isDebug) {
+        debugMode = true;
+        updateDebug();
+    }
+}
+
+function updateDebug() {
+    let container = document.querySelector('#debug')
+    if (debugMode) {
+        container.innerHTML = `
+            -- debug mode --<br>
+            <br>
+            rows = ${rows}<br>
+            columns = ${columns}<br>
+            <br>
+            wallTiles = [${wallTiles}]<br>
+            lockedTiles = [${lockedTiles}]<br>
+            <br> 
+            selector = "${selector}"<br>
+            mousePressed = ${mousePressed}<br>
+            isShifting = ${isShifting}<br>
+            debugMode = ${debugMode}<br>
+            
+        `
+    } else {
+        container.innerHTML = '';
+    }
+    return debugMode;
+}
