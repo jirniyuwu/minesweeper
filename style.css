@@ -22,16 +22,26 @@ input {
     flex-direction: column;
     row-gap: 0px;
 }
-#debug {
+.debug {
     position: absolute;
     top: 0px;
-    left: 0px;
     background-color: #00000050;
     color: #E1E1E8;
-    width: 40%;
+    max-width: 40%;
     overflow-wrap: break-word;
     pointer-events: none;
     z-index: 1001;
+}
+#debugvariables {
+    top: 0px;
+    left: 0px;
+    width: max-content;
+    max-width: 40%;
+}
+#debugbutton {
+    top: 0px;
+    right: 0px;
+    width: max-content;
 }
 .row {
     display: flex;

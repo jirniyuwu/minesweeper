@@ -241,7 +241,7 @@ function checkParam() {
 }
 
 function updateDebug() {
-    let container = document.querySelector('#debug')
+    let container = document.querySelector('#debugvariables')
     if (debugMode) {
         container.innerHTML = `
             -- debug mode --<br>

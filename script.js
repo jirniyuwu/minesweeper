@@ -53,7 +53,6 @@ document.addEventListener('keydown', (event) => {
     if (event.key == "r") {
         resetGame();
     }
-    updateDebug();
 })
 document.addEventListener('keyup', (event) => {
     let toggleButton = document.querySelector('#flag_toggle')
@@ -62,7 +61,6 @@ document.addEventListener('keyup', (event) => {
         flagMode = false;
         isShifting = false;
     }
-    updateDebug();
 })
 document.addEventListener('animationend', (event) => {
     if (event.animationName == 'explosion') {
@@ -345,6 +343,17 @@ function getPickupAt(id) {
         return pickups.length == 1 ? pickups[0] : null;
     }
 }
+function getTileType(id) {
+    if (wallTiles.includes(id)) {
+        return 'wall';
+    } else if (lockedTiles.includes(id)) {
+        return 'locked';
+    } else if (isButtonPressed(id)) {
+        return 'pressed';
+    } else {
+        return 'blank';
+    }
+}
 
 function getNeighbors(id) {
     if (id == null) {return []}
@@ -420,11 +429,11 @@ function clickButton(id, isClick) {
             }
         }
 
-        if (flagMode && !flags.includes(id) && isClick) {
+        if (flagMode && !isButtonPressed(id) && !flags.includes(id) && isClick) {
             button.classList.replace("button", "button_flagged");
             button.classList.replace("locked_button", "locked_button_flagged");
             flags.push(id);
-        } else if (flagMode && flags.includes(id) && isClick) {
+        } else if (flagMode && !isButtonPressed(id) && flags.includes(id) && isClick) {
             button.classList.replace("button_flagged", "button");
             button.classList.replace("locked_button_flagged", "locked_button");
             flags = flags.filter(value => value != id);
@@ -506,7 +515,7 @@ function clickButton(id, isClick) {
             win();
         }
     }   
-    if (isClick) {updateDebug()};
+    if (isClick) {updateDebug(id)};
 }
 
 function triggerHeartPickup(id, button) {
@@ -740,7 +749,7 @@ function win() {
             columns = Math.min(int(columns)+randInt(0, 2), 28);
         }
 
-        bombNum = Math.floor(Math.min(int(bombNum) + Math.sqrt(int(rows)+int(columns)), 
+        bombNum = Math.floor(Math.min(int(bombNum) + Math.sqrt(int(rows)+int(columns))*2/3, 
             (rows*columns-wallTiles.length)/4));
         
         generateField(int(rows), int(columns))
@@ -1045,10 +1054,11 @@ function toggleCustomLayout() {
     }
 }
 
-function updateDebug() {
-    let container = document.querySelector('#debug')
+function updateDebug(id) {
+    let varContainer = document.querySelector('#debugvariables')
+    let butContainer = document.querySelector('#debugbutton');
     if (debugMode) {
-        container.innerHTML = `
+        varContainer.innerHTML = `
             -- debug mode --<br>
             can reduce performance, use at your own risk<br>
             <br>
@@ -1094,8 +1104,28 @@ function updateDebug() {
             isFloorsMode = ${isFloorsMode}<br>
             currentFloor = ${currentFloor}<br>
         `
+        if (id == null || Number.isNaN(id)) {
+            butContainer.innerHTML = `
+                -- button data --<br>
+                <br>
+                not selected<br>
+            `
+        } else {
+            butContainer.innerHTML = `
+                -- button data --<br>
+                <br>
+                id = ${id}<br>
+                pickup = "${getPickupAt(id)}"<br>
+                type = "${getTileType(id)}"<br>
+                flagged = ${flags.includes(id)}<br>
+                <br>
+                neighbors = [${getNeighbors(id)}]<br>
+                nearBombs = [${getBombNeighbors(id)}]<br>
+            `
+        }
     } else {
-        container.innerHTML = '';
+        varContainer.innerHTML = '';
+        butContainer.innerHTML = ''
     }
     return debugMode;
 }
@@ -1215,7 +1245,6 @@ function setPickupAt(id, pickup) {
 }
 
 document.addEventListener('click', e => {
-    updateDebug();
     const isDropdown = e.target.matches("[data-dropdown-button]")
     if (!isDropdown && e.target.closest("[data-dropdown]") != null) {
         return;
@@ -1237,4 +1266,28 @@ document.addEventListener('click', e => {
             dropdown.classList.remove('activedropdown')
         }
     })
+    const elements = document.elementsFromPoint(event.clientX, event.clientY);
+    let buttonId;
+    for (let i = 0; i < elements.length - 3; i++) {
+        let selectedButton = elements[i]
+        if (selectedButton.id.includes('button')) {
+            buttonId = selectedButton.id.replace('button', '');
+            break;
+        }
+    }
+    updateDebug(int(buttonId));
 })
+
+document.addEventListener('mousemove', (event) => {
+    if (!debugMode) {return}
+    const elements = document.elementsFromPoint(event.clientX, event.clientY);
+    let buttonId;
+    for (let i = 0; i < elements.length - 3; i++) {
+        let selectedButton = elements[i]
+        if (selectedButton.id.includes('button')) {
+            buttonId = selectedButton.id.replace('button', '');
+            break;
+        }
+    }
+    updateDebug(int(buttonId));
+});
