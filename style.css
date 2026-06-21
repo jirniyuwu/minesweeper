@@ -140,14 +140,30 @@ input {
     background-size: 100% 100%;
     background-repeat: no-repeat;
 }
-.num1 {background-image: url(sprites/num/1.png)}
-.num2 {background-image: url(sprites/num/2.png)}
-.num3 {background-image: url(sprites/num/3.png)}
-.num4 {background-image: url(sprites/num/4.png)}
-.num5 {background-image: url(sprites/num/5.png)}
-.num6 {background-image: url(sprites/num/6.png)}
-.num7 {background-image: url(sprites/num/7.png)}
-.num8 {background-image: url(sprites/num/8.png)}
+.num1 {
+    background-image: if(style(--color-num: 1): url(sprites/num/1v.png); else: url(sprites/num/1.png));
+}
+.num2 {
+    background-image: if(style(--color-num: 1): url(sprites/num/2v.png); else: url(sprites/num/2.png));
+}
+.num3 {
+    background-image: if(style(--color-num: 1): url(sprites/num/3v.png); else: url(sprites/num/3.png));
+}
+.num4 {
+    background-image: if(style(--color-num: 1): url(sprites/num/4v.png); else: url(sprites/num/4.png));
+}
+.num5 {
+    background-image: if(style(--color-num: 1): url(sprites/num/5v.png); else: url(sprites/num/5.png));
+}
+.num6 {
+    background-image: if(style(--color-num: 1): url(sprites/num/6v.png); else: url(sprites/num/6.png));
+}
+.num7 {
+    background-image: if(style(--color-num: 1): url(sprites/num/7v.png); else: url(sprites/num/7.png));
+}
+.num8 {
+    background-image: if(style(--color-num: 1): url(sprites/num/8v.png); else: url(sprites/num/8.png));
+}
 .bgblank {
     pointer-events: none;
     position: relative;

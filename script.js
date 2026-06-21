@@ -1054,6 +1054,18 @@ function toggleCustomLayout() {
     }
 }
 
+function toggleColor() {
+    let toggleButton = document.querySelector('#color_toggle');
+    if (document.documentElement.style.getPropertyValue('--color-num') == 1) {
+        document.documentElement.style.setProperty('--color-num', 0);
+        toggleButton.classList.remove('toggle_on');
+    } else {
+        document.documentElement.style.setProperty('--color-num', 1);
+        toggleButton.classList.add('toggle_on')
+    }
+    updateDebug();
+}
+
 function updateDebug(id) {
     let varContainer = document.querySelector('#debugvariables')
     let butContainer = document.querySelector('#debugbutton');
@@ -1064,6 +1076,8 @@ function updateDebug(id) {
             <br>
             rows = ${rows}<br>
             columns = ${columns}<br>
+            --is-active = ${document.documentElement.style.getPropertyValue('--is-active')}<br>
+            --color-num = ${document.documentElement.style.getPropertyValue('--color-num')}<br>
             <br>
             allowPickups = ${allowPickups}<br>
             pickedPickups = [${pickedPickups}]<br>
