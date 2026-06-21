@@ -228,7 +228,7 @@ function generateShops() {
     if (isFloorsMode && currentFloor < 7) {
         return;
     }
-    max = isFloorsMode ? Math.floor(bombNum/60 + randInt(0, currentFloor)/12 + randInt(-2, 1)) : Math.floor(bombNum/60 + randInt(-2, 1))
+    max = isFloorsMode ? Math.floor(bombNum/60 + randInt(0, currentFloor)/12 + randInt(-2, 1)) : Math.max(1, Math.floor(bombNum/60 + randInt(-2, 1)))
     while (shopTiles.length < max && excludeForPickupGeneration.length + shopTiles.length < rows*columns) {
         let shopId = Math.floor(Math.random() * rows * columns);
         if (!shopTiles.includes(shopId) && !excludeForPickupGeneration.includes(shopId)) {
